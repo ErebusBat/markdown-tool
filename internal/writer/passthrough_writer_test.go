@@ -68,7 +68,7 @@ func TestPassthroughWriter_Write(t *testing.T) {
 func TestPassthroughWriter_GetName(t *testing.T) {
 	writer := NewPassthroughWriter()
 	name := writer.GetName()
-	
+
 	expected := "PassthroughWriter"
 	if name != expected {
 		t.Errorf("GetName() = %v, want %v", name, expected)

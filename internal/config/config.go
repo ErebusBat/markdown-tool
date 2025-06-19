@@ -19,27 +19,27 @@ func Load(configFile string) (*types.Config, error) {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		configDir := filepath.Join(home, ".config", "markdown-tool")
 		configPath := filepath.Join(configDir, "config.yaml")
-		
+
 		// Create config directory if it doesn't exist
 		if err := os.MkdirAll(configDir, 0755); err != nil {
 			return nil, fmt.Errorf("failed to create config directory: %w", err)
 		}
-		
+
 		// Create default config if it doesn't exist
 		if _, err := os.Stat(configPath); os.IsNotExist(err) {
 			if err := createDefaultConfig(configPath); err != nil {
 				return nil, fmt.Errorf("failed to create default config: %w", err)
 			}
 		}
-		
+
 		viper.SetConfigFile(configPath)
 	}
 
 	viper.SetConfigType("yaml")
-	
+
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}

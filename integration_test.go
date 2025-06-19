@@ -150,7 +150,7 @@ func TestConfigurationIntegration(t *testing.T) {
 
 	// Test that TST key works with cfg1 but not cfg2
 	input := "TST-123"
-	
+
 	output1 := processInput(t, cfg1, input)
 	expected1 := "[TST-123](https://test1.atlassian.net/browse/TST-123)"
 	if output1 != expected1 {

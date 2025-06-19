@@ -68,7 +68,7 @@ func run() error {
 	// Parse input
 	parsers := parser.GetParsers(cfg)
 	contexts := make([]*types.ParseContext, 0)
-	
+
 	for _, p := range parsers {
 		if ctx, err := p.Parse(input); err == nil && ctx != nil {
 			contexts = append(contexts, ctx)
@@ -90,7 +90,7 @@ func run() error {
 		fmt.Print(input)
 		return nil
 	}
-	
+
 	output, err := bestWriter.Write(contexts[0])
 	if err != nil {
 		return fmt.Errorf("failed to write output: %w", err)

@@ -78,9 +78,9 @@ func TestJIRAWriter_Write(t *testing.T) {
 			expectedOutput: "https://example.com",
 		},
 		{
-			name:        "JIRA Key without metadata returns original",
-			contentType: types.ContentTypeJIRAKey,
-			metadata:    map[string]interface{}{},
+			name:           "JIRA Key without metadata returns original",
+			contentType:    types.ContentTypeJIRAKey,
+			metadata:       map[string]interface{}{},
 			originalInput:  "PLAT-999",
 			expectedOutput: "PLAT-999",
 		},

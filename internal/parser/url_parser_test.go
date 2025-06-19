@@ -166,7 +166,7 @@ func TestURLParser_Parse_Notion(t *testing.T) {
 
 	input := "https://www.notion.so/companycam/VS-Code-Setup-for-Standard-rb-RubyLSP-654a6b070ae74ac3ad400c6d571507c0"
 	ctx, err := parser.Parse(input)
-	
+
 	if err != nil {
 		t.Fatalf("Parse() error = %v", err)
 	}
@@ -190,7 +190,7 @@ func TestURLParser_Parse_Generic(t *testing.T) {
 
 	input := "http://ww3.domain.tld/path/to/document?query=value#anchor"
 	ctx, err := parser.Parse(input)
-	
+
 	if err != nil {
 		t.Fatalf("Parse() error = %v", err)
 	}

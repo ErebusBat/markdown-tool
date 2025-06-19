@@ -49,31 +49,31 @@ func TestJIRAKeyParser_Parse(t *testing.T) {
 	parser := NewJIRAKeyParser(cfg)
 
 	tests := []struct {
-		name           string
-		input          string
-		expectSuccess  bool
-		expectedKey    string
+		name            string
+		input           string
+		expectSuccess   bool
+		expectedKey     string
 		expectedProject string
 	}{
 		{
-			name:           "Valid PLAT key",
-			input:          "PLAT-12345",
-			expectSuccess:  true,
-			expectedKey:    "PLAT-12345",
+			name:            "Valid PLAT key",
+			input:           "PLAT-12345",
+			expectSuccess:   true,
+			expectedKey:     "PLAT-12345",
 			expectedProject: "PLAT",
 		},
 		{
-			name:           "Valid SPEED key",
-			input:          "SPEED-456",
-			expectSuccess:  true,
-			expectedKey:    "SPEED-456",
+			name:            "Valid SPEED key",
+			input:           "SPEED-456",
+			expectSuccess:   true,
+			expectedKey:     "SPEED-456",
 			expectedProject: "SPEED",
 		},
 		{
-			name:           "Valid key with whitespace",
-			input:          "  PLAT-789  ",
-			expectSuccess:  true,
-			expectedKey:    "PLAT-789",
+			name:            "Valid key with whitespace",
+			input:           "  PLAT-789  ",
+			expectSuccess:   true,
+			expectedKey:     "PLAT-789",
 			expectedProject: "PLAT",
 		},
 		{
@@ -91,7 +91,7 @@ func TestJIRAKeyParser_Parse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, err := parser.Parse(tt.input)
-			
+
 			if err != nil {
 				t.Fatalf("Parse() error = %v", err)
 			}

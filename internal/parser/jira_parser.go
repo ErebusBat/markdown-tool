@@ -32,9 +32,9 @@ func (p *JIRAKeyParser) Parse(input string) (*types.ParseContext, error) {
 	if len(parts) < 2 {
 		return nil, nil
 	}
-	
+
 	projectKey := parts[0]
-	
+
 	// Check if this project is configured
 	configured := false
 	for _, validProject := range p.config.JIRA.Projects {
@@ -43,7 +43,7 @@ func (p *JIRAKeyParser) Parse(input string) (*types.ParseContext, error) {
 			break
 		}
 	}
-	
+
 	if !configured {
 		return nil, nil // Don't handle unconfigured projects
 	}
