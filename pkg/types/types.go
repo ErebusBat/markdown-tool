@@ -36,19 +36,19 @@ type Writer interface {
 
 // Config represents the application configuration
 type Config struct {
-	GitHub GitHubConfig `yaml:"github"`
-	JIRA   JIRAConfig   `yaml:"jira"`
+	GitHub GitHubConfig `yaml:"github" mapstructure:"github"`
+	JIRA   JIRAConfig   `yaml:"jira" mapstructure:"jira"`
 }
 
 // GitHubConfig holds GitHub-specific configuration
 type GitHubConfig struct {
-	DefaultOrg  string            `yaml:"default_org"`
-	DefaultRepo string            `yaml:"default_repo"`
-	Mappings    map[string]string `yaml:"mappings"`
+	DefaultOrg  string            `yaml:"default_org" mapstructure:"default_org"`
+	DefaultRepo string            `yaml:"default_repo" mapstructure:"default_repo"`
+	Mappings    map[string]string `yaml:"mappings" mapstructure:"mappings"`
 }
 
 // JIRAConfig holds JIRA-specific configuration
 type JIRAConfig struct {
-	Domain   string   `yaml:"domain"`
-	Projects []string `yaml:"projects"`
+	Domain   string   `yaml:"domain" mapstructure:"domain"`
+	Projects []string `yaml:"projects" mapstructure:"projects"`
 }

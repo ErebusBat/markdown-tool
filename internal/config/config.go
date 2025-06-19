@@ -38,6 +38,8 @@ func Load(configFile string) (*types.Config, error) {
 		viper.SetConfigFile(configPath)
 	}
 
+	viper.SetConfigType("yaml")
+	
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
