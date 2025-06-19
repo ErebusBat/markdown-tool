@@ -1,18 +1,22 @@
 {
+  "includeCoAuthoredBy": false,
+  "autoCommit": true,
   "permissions": {
     "allow": [
-      "Bash(go mod init:*)",
-      "Bash(go get:*)",
-      "Bash(mkdir:*)",
-      "Bash(go mod:*)",
-      "Bash(go build:*)",
-      "Bash(ls:*)",
+      "Bash(/opt/homebrew/bin/git:*)",
       "Bash(cat:*)",
+      "Bash(go build:*)",
+      "Bash(go get:*)",
+      "Bash(go mod init:*)",
+      "Bash(go mod:*)",
       "Bash(go run:*)",
       "Bash(go test:*)",
-      "Bash(make test:*)",
-      "Bash(git checkout:*)",
-      "Bash(/opt/homebrew/bin/git checkout HEAD -- internal/writer/url_writer_test.go)"
+      "Bash(ls:*)",
+      "Bash(make:*)",
+      "Bash(mkdir:*)",
+      "Edit",
+      "MultiEdit",
+      "Write"
     ],
     "deny": []
   }
