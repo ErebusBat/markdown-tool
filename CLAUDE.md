@@ -49,6 +49,9 @@ go fmt ./...
 golangci-lint run
 ```
 
+**IMPORTANT Git Configuration:**
+When running git commands via Claude Code tools, always use the full path: `/opt/homebrew/bin/git` instead of just `git`. This is required for this specific development environment.
+
 ## Configuration Structure
 
 The tool expects YAML configuration with:
