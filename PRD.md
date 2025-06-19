@@ -112,6 +112,11 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
 - [ ] Application creates configuration directory at `~/.config/markdown-tool/` if it doesn't exist
 - [ ] Configuration file is properly loaded using Viper with GitHub and JIRA settings
 - [ ] Invalid configuration displays helpful error messages
+- [ ] If no configuration file is present then a default one should be created;
+    - [ ] GitHub Org: `CompanyCam`
+    - [ ] GitHub: `Company-Cam-API`
+    - [ ] JIRA Domain: `companycam.atlassian.net`
+    - [ ] JIRA PROJECTS: [`PLAT`, `SPEED`]
 - [ ] Missing configuration falls back to reasonable defaults
 
 ### URL Processing
