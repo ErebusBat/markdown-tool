@@ -24,6 +24,8 @@ func (w *URLWriter) Vote(ctx *types.ParseContext) int {
 	switch ctx.DetectedType {
 	case types.ContentTypeGitHubURL:
 		return 90
+	case types.ContentTypeGitHubLong:
+		return 95
 	case types.ContentTypeJIRAURL:
 		return 90
 	case types.ContentTypeJIRAComment:
@@ -41,6 +43,8 @@ func (w *URLWriter) Write(ctx *types.ParseContext) (string, error) {
 	switch ctx.DetectedType {
 	case types.ContentTypeGitHubURL:
 		return w.writeGitHubURL(ctx)
+	case types.ContentTypeGitHubLong:
+		return w.writeGitHubLongURL(ctx)
 	case types.ContentTypeJIRAURL:
 		return w.writeJIRAURL(ctx)
 	case types.ContentTypeJIRAComment:
@@ -75,6 +79,35 @@ func (w *URLWriter) writeGitHubURL(ctx *types.ParseContext) (string, error) {
 
 	linkText := fmt.Sprintf("%s#%s", orgRepo, number)
 	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
+}
+
+func (w *URLWriter) writeGitHubLongURL(ctx *types.ParseContext) (string, error) {
+	org, _ := ctx.Metadata["org"].(string)
+	repo, _ := ctx.Metadata["repo"].(string)
+	title, _ := ctx.Metadata["title"].(string)
+	number, _ := ctx.Metadata["number"].(string)
+	issueType, _ := ctx.Metadata["type"].(string)
+
+	if org == "" || repo == "" || title == "" || number == "" {
+		return ctx.OriginalInput, nil
+	}
+
+	// Apply organization/repository mappings if configured
+	orgRepo := fmt.Sprintf("%s/%s", org, repo)
+	// Try case-insensitive lookup since Viper lowercases map keys
+	for key, mapped := range w.config.GitHub.Mappings {
+		if strings.EqualFold(key, orgRepo) {
+			orgRepo = mapped
+			break
+		}
+	}
+
+	// Build the GitHub URL
+	githubURL := fmt.Sprintf("https://github.com/%s/%s/%s/%s", org, repo, issueType, number)
+	
+	// Create the link text with org/repo#number: title format
+	linkText := fmt.Sprintf("%s#%s: %s", orgRepo, number, title)
+	return fmt.Sprintf("[%s](%s)", linkText, githubURL), nil
 }
 
 func (w *URLWriter) writeJIRAURL(ctx *types.ParseContext) (string, error) {

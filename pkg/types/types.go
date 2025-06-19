@@ -15,6 +15,7 @@ const (
 	ContentTypeUnknown ContentType = iota
 	ContentTypeURL
 	ContentTypeGitHubURL
+	ContentTypeGitHubLong
 	ContentTypeJIRAURL
 	ContentTypeJIRAComment
 	ContentTypeNotionURL

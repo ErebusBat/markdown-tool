@@ -16,6 +16,7 @@ type ParseContext struct {
 func GetParsers(cfg *types.Config) []types.Parser {
 	return []types.Parser{
 		NewURLParser(cfg),
+		NewGitHubLongParser(cfg),
 		NewJIRAKeyParser(cfg),
 	}
 }

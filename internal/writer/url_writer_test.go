@@ -16,6 +16,7 @@ func TestURLWriter_Vote(t *testing.T) {
 		expectedVote int
 	}{
 		{"GitHub URL", types.ContentTypeGitHubURL, 90},
+		{"GitHub Long", types.ContentTypeGitHubLong, 95},
 		{"JIRA URL", types.ContentTypeJIRAURL, 90},
 		{"JIRA Comment", types.ContentTypeJIRAComment, 95},
 		{"Notion URL", types.ContentTypeNotionURL, 85},
@@ -188,6 +189,73 @@ func TestURLWriter_WriteNotionURL(t *testing.T) {
 
 	if output != expectedOutput {
 		t.Errorf("Write() = %v, want %v", output, expectedOutput)
+	}
+}
+
+func TestURLWriter_WriteGitHubLongURL(t *testing.T) {
+	tests := []struct {
+		name           string
+		config         *types.Config
+		metadata       map[string]interface{}
+		originalInput  string
+		expectedOutput string
+	}{
+		{
+			name: "GitHub Long without mapping",
+			config: &types.Config{
+				GitHub: types.GitHubConfig{
+					Mappings: map[string]string{},
+				},
+			},
+			metadata: map[string]interface{}{
+				"org":    "CompanyCam",
+				"repo":   "companycam-mobile",
+				"title":  "A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog",
+				"number": "6549",
+				"type":   "issues",
+			},
+			originalInput:  "GitHub UI text chunk",
+			expectedOutput: "[CompanyCam/companycam-mobile#6549: A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog](https://github.com/CompanyCam/companycam-mobile/issues/6549)",
+		},
+		{
+			name: "GitHub Long with mapping",
+			config: &types.Config{
+				GitHub: types.GitHubConfig{
+					Mappings: map[string]string{
+						"companycam/companycam-mobile": "CompanyCam/API",
+					},
+				},
+			},
+			metadata: map[string]interface{}{
+				"org":    "CompanyCam",
+				"repo":   "companycam-mobile",
+				"title":  "Fix authentication bug",
+				"number": "123",
+				"type":   "issues",
+			},
+			originalInput:  "GitHub UI text chunk",
+			expectedOutput: "[CompanyCam/API#123: Fix authentication bug](https://github.com/CompanyCam/companycam-mobile/issues/123)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			writer := NewURLWriter(tt.config)
+			ctx := &types.ParseContext{
+				OriginalInput: tt.originalInput,
+				DetectedType:  types.ContentTypeGitHubLong,
+				Metadata:      tt.metadata,
+			}
+
+			output, err := writer.Write(ctx)
+			if err != nil {
+				t.Fatalf("Write() error = %v", err)
+			}
+
+			if output != tt.expectedOutput {
+				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
+			}
+		})
 	}
 }
 

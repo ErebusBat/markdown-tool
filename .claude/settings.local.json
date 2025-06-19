@@ -9,7 +9,10 @@
       "Bash(ls:*)",
       "Bash(cat:*)",
       "Bash(go run:*)",
-      "Bash(go test:*)"
+      "Bash(go test:*)",
+      "Bash(make test:*)",
+      "Bash(git checkout:*)",
+      "Bash(/opt/homebrew/bin/git checkout HEAD -- internal/writer/url_writer_test.go)"
     ],
     "deny": []
   }

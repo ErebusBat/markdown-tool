@@ -17,6 +17,7 @@ func TestEndToEndTransformation(t *testing.T) {
 			DefaultRepo: "Company-Cam-API",
 			Mappings: map[string]string{
 				"companycam/company-cam-api": "CompanyCam/API",
+				"companycam/companycam-mobile": "CompanyCam/mobile",
 			},
 		},
 		JIRA: types.JIRAConfig{
@@ -84,6 +85,26 @@ func TestEndToEndTransformation(t *testing.T) {
 			name:           "Mixed content",
 			input:          "Check out PLAT-999",
 			expectedOutput: "Check out PLAT-999", // Won't match because it's not standalone
+		},
+		{
+			name: "GitHub Long format",
+			input: `CompanyCam
+companycam-mobile
+
+Type / to search
+Code
+Issues
+78
+Pull requests
+12
+Actions
+Projects
+Wiki
+Security
+7
+Insights
+A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog #6549`,
+			expectedOutput: "[CompanyCam/mobile#6549: A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog](https://github.com/CompanyCam/companycam-mobile/issues/6549)",
 		},
 	}
 
