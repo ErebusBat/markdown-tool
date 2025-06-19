@@ -108,7 +108,55 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
 
 ## 5. Acceptance Criteria
 
-TODO
+### Configuration Management
+- [ ] Application creates configuration directory at `~/.config/markdown-tool/` if it doesn't exist
+- [ ] Configuration file is properly loaded using Viper with GitHub and JIRA settings
+- [ ] Invalid configuration displays helpful error messages
+- [ ] Missing configuration falls back to reasonable defaults
+
+### URL Processing
+- [ ] Generic URLs are converted to `[domain.tld](full-url)` format
+- [ ] GitHub PR/issue URLs are converted to `[org/repo#number](url)` format
+- [ ] JIRA issue URLs are converted to `[ISSUE-KEY](url)` format
+- [ ] JIRA comment URLs are converted to `[ISSUE-KEY comment](url)` format
+- [ ] Notion URLs extract page titles from URL slugs
+- [ ] Organization/project name mappings from config are applied correctly
+
+### JIRA Key Detection
+- [ ] Standalone JIRA keys (e.g., `PLAT-12345`) are converted to full markdown links
+- [ ] Only configured project keys are recognized
+- [ ] Invalid or unconfigured project keys are left unchanged
+
+### Input/Output Handling
+- [ ] Processes text from stdin when available
+- [ ] Falls back to clipboard content when stdin is empty
+- [ ] Outputs transformed markdown to stdout
+- [ ] Logs debug information to stderr
+- [ ] Handles empty input gracefully
+
+### Parsing Architecture
+- [ ] Parsing phase: All parsers analyze input and populate context
+- [ ] Voting phase: Output writers vote on confidence levels
+- [ ] Output phase: Highest-confidence writer generates final output
+- [ ] Unmatched text is output verbatim
+
+### Error Handling
+- [ ] Invalid URLs are left unchanged
+- [ ] Network failures (if any) don't crash the application
+- [ ] Malformed input produces helpful error messages
+- [ ] Edge cases (empty input, special characters) are handled gracefully
+
+### Command Line Interface
+- [ ] Application runs without flags and processes input/output
+- [ ] Help documentation is clear and comprehensive
+- [ ] Version information is available
+- [ ] Structured logging outputs to stderr in human-readable format
+
+### Testing
+- [ ] Unit tests cover all URL transformation scenarios
+- [ ] Integration tests verify end-to-end functionality
+- [ ] Edge case tests ensure robust error handling
+- [ ] Configuration loading tests validate Viper integration
 
 ## 7. Non-Functional Requirements
 
