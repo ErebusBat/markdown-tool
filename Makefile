@@ -31,7 +31,7 @@ build-all: clean
 .PHONY: test
 test:
 	@echo "Running tests..."
-	go test -v ./...
+	go test  ./...
 
 # Run tests with coverage
 .PHONY: test-coverage
