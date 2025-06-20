@@ -17,6 +17,7 @@ func GetParsers(cfg *types.Config) []types.Parser {
 	return []types.Parser{
 		NewURLParser(cfg),
 		NewGitHubLongParser(cfg),
+		NewJIRAKeyWithDescriptionParser(cfg), // Higher priority than simple JIRA key
 		NewJIRAKeyParser(cfg),
 	}
 }

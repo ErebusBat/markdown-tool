@@ -20,6 +20,7 @@ const (
 	ContentTypeJIRAComment
 	ContentTypeNotionURL
 	ContentTypeJIRAKey
+	ContentTypeJIRAKeyWithDescription
 )
 
 // Parser interface for content detection and parsing

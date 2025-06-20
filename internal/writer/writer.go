@@ -8,6 +8,7 @@ import (
 func GetWriters(cfg *types.Config) []types.Writer {
 	return []types.Writer{
 		NewURLWriter(cfg),
+		NewJIRAKeyWithDescriptionWriter(cfg),
 		NewJIRAWriter(cfg),
 		NewPassthroughWriter(),
 	}

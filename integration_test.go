@@ -106,6 +106,37 @@ Insights
 A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog #6549`,
 			expectedOutput: "[CompanyCam/mobile#6549: A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog](https://github.com/CompanyCam/companycam-mobile/issues/6549)",
 		},
+		{
+			name: "JIRA Key with description - PLAT",
+			input: `PLAT-192
+
+blinc - webhook proxy logs`,
+			expectedOutput: "[PLAT-192: blinc - webhook proxy logs](https://companycam.atlassian.net/browse/PLAT-192)",
+		},
+		{
+			name: "JIRA Key with description - SPEED",
+			input: `SPEED-456
+
+Optimize database query performance`,
+			expectedOutput: "[SPEED-456: Optimize database query performance](https://companycam.atlassian.net/browse/SPEED-456)",
+		},
+		{
+			name: "JIRA Key with multi-line description",
+			input: `PLAT-789
+
+Fix authentication issue with SSO
+Additional details about the bug`,
+			expectedOutput: "[PLAT-789: Fix authentication issue with SSO Additional details about the bug](https://companycam.atlassian.net/browse/PLAT-789)",
+		},
+		{
+			name: "Unconfigured JIRA Key with description",
+			input: `INVALID-123
+
+This should not be transformed`,
+			expectedOutput: `INVALID-123
+
+This should not be transformed`,
+		},
 	}
 
 	for _, tt := range tests {
