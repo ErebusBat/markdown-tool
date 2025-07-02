@@ -61,7 +61,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "1234567",
 			},
 			originalInput:  "1234567",
-			expectedOutput: "[123-4567](tel:1234567)",
+			expectedOutput: "📞 [123-4567](tel:1234567)",
 		},
 		{
 			name:        "7-digit phone with dashes",
@@ -71,7 +71,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "1234567",
 			},
 			originalInput:  "123-4567",
-			expectedOutput: "[123-4567](tel:1234567)",
+			expectedOutput: "📞 [123-4567](tel:1234567)",
 		},
 		{
 			name:        "7-digit phone with dots",
@@ -81,7 +81,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "1234567",
 			},
 			originalInput:  "123.4567",
-			expectedOutput: "[123-4567](tel:1234567)",
+			expectedOutput: "📞 [123-4567](tel:1234567)",
 		},
 		{
 			name:        "10-digit phone",
@@ -91,7 +91,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "8901234567",
 			},
 			originalInput:  "8901234567",
-			expectedOutput: "[890-123-4567](tel:8901234567)",
+			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
 		},
 		{
 			name:        "10-digit phone with dashes",
@@ -101,7 +101,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "8901234567",
 			},
 			originalInput:  "890-123-4567",
-			expectedOutput: "[890-123-4567](tel:8901234567)",
+			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
 		},
 		{
 			name:        "10-digit phone with dots",
@@ -111,7 +111,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "8901234567",
 			},
 			originalInput:  "890.123.4567",
-			expectedOutput: "[890-123-4567](tel:8901234567)",
+			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
 		},
 		{
 			name:        "10-digit phone with parentheses and space",
@@ -121,7 +121,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "8901234567",
 			},
 			originalInput:  "(890) 123-4567",
-			expectedOutput: "[890-123-4567](tel:8901234567)",
+			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
 		},
 		{
 			name:        "10-digit phone with parentheses no space",
@@ -131,7 +131,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "8901234567",
 			},
 			originalInput:  "(890)123-4567",
-			expectedOutput: "[890-123-4567](tel:8901234567)",
+			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
 		},
 		{
 			name:        "10-digit phone with parentheses plain",
@@ -141,7 +141,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "8901234567",
 			},
 			originalInput:  "(890)1234567",
-			expectedOutput: "[890-123-4567](tel:8901234567)",
+			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
 		},
 		{
 			name:        "11-digit US phone",
@@ -151,7 +151,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+18901234567",
 			},
 			originalInput:  "18901234567",
-			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+			expectedOutput: "📞 [1-890-123-4567](tel:+18901234567)",
 		},
 		{
 			name:        "11-digit US phone with dashes",
@@ -161,7 +161,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+18901234567",
 			},
 			originalInput:  "1-890-123-4567",
-			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+			expectedOutput: "📞 [1-890-123-4567](tel:+18901234567)",
 		},
 		{
 			name:        "11-digit US phone with dots",
@@ -171,7 +171,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+18901234567",
 			},
 			originalInput:  "1.890.123.4567",
-			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+			expectedOutput: "📞 [1-890-123-4567](tel:+18901234567)",
 		},
 		{
 			name:        "11-digit US phone with parentheses and space",
@@ -181,7 +181,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+18901234567",
 			},
 			originalInput:  "1 (890) 123-4567",
-			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+			expectedOutput: "📞 [1-890-123-4567](tel:+18901234567)",
 		},
 		{
 			name:        "11-digit US phone with parentheses no space",
@@ -191,7 +191,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+18901234567",
 			},
 			originalInput:  "1(890)123-4567",
-			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+			expectedOutput: "📞 [1-890-123-4567](tel:+18901234567)",
 		},
 		{
 			name:        "11-digit US phone with parentheses plain",
@@ -201,7 +201,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+18901234567",
 			},
 			originalInput:  "1(890)1234567",
-			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+			expectedOutput: "📞 [1-890-123-4567](tel:+18901234567)",
 		},
 		{
 			name:        "11-digit international phone",
@@ -211,7 +211,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+78901234567",
 			},
 			originalInput:  "+78901234567",
-			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+			expectedOutput: "📞 [+7-890-123-4567](tel:+78901234567)",
 		},
 		{
 			name:        "11-digit international phone with dashes",
@@ -221,7 +221,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+78901234567",
 			},
 			originalInput:  "+7-890-123-4567",
-			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+			expectedOutput: "📞 [+7-890-123-4567](tel:+78901234567)",
 		},
 		{
 			name:        "11-digit international phone with dots",
@@ -231,7 +231,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+78901234567",
 			},
 			originalInput:  "+7.890.123.4567",
-			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+			expectedOutput: "📞 [+7-890-123-4567](tel:+78901234567)",
 		},
 		{
 			name:        "11-digit international phone with parentheses and space",
@@ -241,7 +241,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+78901234567",
 			},
 			originalInput:  "+7 (890) 123-4567",
-			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+			expectedOutput: "📞 [+7-890-123-4567](tel:+78901234567)",
 		},
 		{
 			name:        "11-digit international phone with parentheses no space",
@@ -251,7 +251,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+78901234567",
 			},
 			originalInput:  "+7(890)123-4567",
-			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+			expectedOutput: "📞 [+7-890-123-4567](tel:+78901234567)",
 		},
 		{
 			name:        "11-digit international phone with parentheses plain",
@@ -261,7 +261,7 @@ func TestPhoneWriter_Write(t *testing.T) {
 				"tel_url":          "+78901234567",
 			},
 			originalInput:  "+7(890)1234567",
-			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+			expectedOutput: "📞 [+7-890-123-4567](tel:+78901234567)",
 		},
 		{
 			name:           "Non-phone content type returns original",

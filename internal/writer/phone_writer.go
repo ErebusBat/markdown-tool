@@ -53,6 +53,6 @@ func (w *PhoneWriter) writePhoneNumber(ctx *types.ParseContext) (string, error) 
 		return ctx.OriginalInput, fmt.Errorf("missing tel_url in phone context")
 	}
 
-	// Generate markdown link: [formatted](tel:url)
-	return fmt.Sprintf("[%s](tel:%s)", formattedDisplay, telURL), nil
+	// Generate markdown link with phone emoji prefix: 📞 [formatted](tel:url)
+	return fmt.Sprintf("📞 [%s](tel:%s)", formattedDisplay, telURL), nil
 }
