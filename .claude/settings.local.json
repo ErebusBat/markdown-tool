@@ -5,18 +5,31 @@
     "allow": [
       "Bash(/opt/homebrew/bin/git:*)",
       "Bash(cat:*)",
+      "Bash(dip:*)",
+      "Bash(docker compose:*)",
+      "Bash(find:*)",
       "Bash(go build:*)",
       "Bash(go get:*)",
       "Bash(go mod init:*)",
       "Bash(go mod:*)",
       "Bash(go run:*)",
       "Bash(go test:*)",
+      "Bash(grep:*)",
       "Bash(ls:*)",
       "Bash(make:*)",
       "Bash(mkdir:*)",
+      "Bash(printenv)",
+      "Bash(rg:*)",
       "Edit",
       "MultiEdit",
-      "Write"
+      "WebFetch(domain:amplitude.com)",
+      "WebFetch(domain:amplitude.github.io)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:www.notion.so)",
+      "Write",
+      "mcp__github__get_*",
+      "mcp__github__list_*",
+      "mcp__serena__*"
     ],
     "deny": []
   }
