@@ -10,6 +10,7 @@ func GetWriters(cfg *types.Config) []types.Writer {
 		NewURLWriter(cfg),
 		NewJIRAKeyWithDescriptionWriter(cfg),
 		NewJIRAWriter(cfg),
+		NewPhoneWriter(cfg),
 		NewPassthroughWriter(),
 	}
 }

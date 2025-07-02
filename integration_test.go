@@ -137,6 +137,166 @@ This should not be transformed`,
 
 This should not be transformed`,
 		},
+		
+		// Phone number tests - 7-digit
+		{
+			name:           "7-digit phone plain",
+			input:          "1234567",
+			expectedOutput: "[123-4567](tel:1234567)",
+		},
+		{
+			name:           "7-digit phone with dash",
+			input:          "123-4567",
+			expectedOutput: "[123-4567](tel:1234567)",
+		},
+		{
+			name:           "7-digit phone with dot",
+			input:          "123.4567",
+			expectedOutput: "[123-4567](tel:1234567)",
+		},
+		
+		// Phone number tests - 10-digit
+		{
+			name:           "10-digit phone plain",
+			input:          "8901234567",
+			expectedOutput: "[890-123-4567](tel:8901234567)",
+		},
+		{
+			name:           "10-digit phone with dash",
+			input:          "890-123-4567",
+			expectedOutput: "[890-123-4567](tel:8901234567)",
+		},
+		{
+			name:           "10-digit phone with dot",
+			input:          "890.123.4567",
+			expectedOutput: "[890-123-4567](tel:8901234567)",
+		},
+		{
+			name:           "10-digit phone with parentheses and space",
+			input:          "(890) 123-4567",
+			expectedOutput: "[890-123-4567](tel:8901234567)",
+		},
+		{
+			name:           "10-digit phone with parentheses no space",
+			input:          "(890)123-4567",
+			expectedOutput: "[890-123-4567](tel:8901234567)",
+		},
+		{
+			name:           "10-digit phone with parentheses plain",
+			input:          "(890)1234567",
+			expectedOutput: "[890-123-4567](tel:8901234567)",
+		},
+		
+		// Phone number tests - 11-digit US
+		{
+			name:           "11-digit US phone plain",
+			input:          "18901234567",
+			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+		},
+		{
+			name:           "11-digit US phone with dash",
+			input:          "1-890-123-4567",
+			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+		},
+		{
+			name:           "11-digit US phone with dot",
+			input:          "1.890.123.4567",
+			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+		},
+		{
+			name:           "11-digit US phone with parentheses and space",
+			input:          "1 (890) 123-4567",
+			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+		},
+		{
+			name:           "11-digit US phone with parentheses no space",
+			input:          "1(890)123-4567",
+			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+		},
+		{
+			name:           "11-digit US phone with parentheses plain",
+			input:          "1(890)1234567",
+			expectedOutput: "[1-890-123-4567](tel:+18901234567)",
+		},
+		
+		// Phone number tests - 11-digit international
+		{
+			name:           "11-digit international phone plain",
+			input:          "+78901234567",
+			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+		},
+		{
+			name:           "11-digit international phone with dash",
+			input:          "+7-890-123-4567",
+			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+		},
+		{
+			name:           "11-digit international phone with dot",
+			input:          "+7.890.123.4567",
+			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+		},
+		{
+			name:           "11-digit international phone with parentheses and space",
+			input:          "+7 (890) 123-4567",
+			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+		},
+		{
+			name:           "11-digit international phone with parentheses no space",
+			input:          "+7(890)123-4567",
+			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+		},
+		{
+			name:           "11-digit international phone with parentheses plain",
+			input:          "+7(890)1234567",
+			expectedOutput: "[+7-890-123-4567](tel:+78901234567)",
+		},
+		
+		// Phone number non-matches (should pass through unchanged)
+		{
+			name:           "7-digit with space - no match",
+			input:          "123 4567",
+			expectedOutput: "123 4567",
+		},
+		{
+			name:           "7-digit with comma - no match",
+			input:          "123,4567",
+			expectedOutput: "123,4567",
+		},
+		{
+			name:           "7-digit with leading zero - no match",
+			input:          "01234567",
+			expectedOutput: "01234567",
+		},
+		{
+			name:           "10-digit with extra digit - no match",
+			input:          "89012345670",
+			expectedOutput: "89012345670",
+		},
+		{
+			name:           "10-digit with spaces - no match",
+			input:          "890 123 4567",
+			expectedOutput: "890 123 4567",
+		},
+		{
+			name:           "10-digit mixed separators - no match",
+			input:          "(890) 123 4567",
+			expectedOutput: "(890) 123 4567",
+		},
+		{
+			name:           "10-digit wrong grouping - no match",
+			input:          "(890) 1234 567",
+			expectedOutput: "(890) 1234 567",
+		},
+		{
+			name:           "10-digit incomplete - no match",
+			input:          "(890)123-456",
+			expectedOutput: "(890)123-456",
+		},
+		{
+			name:           "10-digit too many digits - no match",
+			input:          "(890)12345679",
+			expectedOutput: "(890)12345679",
+		},
 	}
 
 	for _, tt := range tests {

@@ -124,11 +124,11 @@ func TestGetWriters(t *testing.T) {
 	cfg := &types.Config{}
 	writers := GetWriters(cfg)
 
-	if len(writers) != 4 {
-		t.Errorf("Expected 4 writers, got %v", len(writers))
+	if len(writers) != 5 {
+		t.Errorf("Expected 5 writers, got %v", len(writers))
 	}
 
-	expectedNames := []string{"URLWriter", "JIRAKeyWithDescriptionWriter", "JIRAWriter", "PassthroughWriter"}
+	expectedNames := []string{"URLWriter", "JIRAKeyWithDescriptionWriter", "JIRAWriter", "PhoneWriter", "PassthroughWriter"}
 	for i, writer := range writers {
 		if writer.GetName() != expectedNames[i] {
 			t.Errorf("Expected writer %v at index %v, got %v", expectedNames[i], i, writer.GetName())
