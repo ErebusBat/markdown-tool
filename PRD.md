@@ -60,16 +60,16 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
     - **7-digit numbers**: Match only specific separators, output in standard format
         - Matches: `1234567`, `123-4567`, `123.4567`
         - Does not match: `123 4567`, `123,4567`, `01234567` (leading zero)
-        - Output: `[123-4567](tel:1234567)`
+        - Output: `📞 [123-4567](tel:1234567)`
     - **10-digit numbers**: Match various common formats, output in standard format
         - Matches: `8901234567`, `890-123-4567`, `890.123.4567`, `(890) 123-4567`, `(890)123-4567`, `(890)1234567`
         - Does not match: `89012345670` (extra digit), `890 123 4567` (spaces), `(890) 123 4567` (mixed separators)
-        - Output: `[890-123-4567](tel:8901234567)`
+        - Output: `📞 [890-123-4567](tel:8901234567)`
     - **11-digit numbers with country code**: Support US and international formats
         - US numbers (country code 1): `18901234567`, `1-890-123-4567`, `1.890.123.4567`, `1 (890) 123-4567`, `1(890)123-4567`, `1(890)1234567`
         - International numbers (must have + prefix): `+78901234567`, `+7-890-123-4567`, `+7.890.123.4567`, `+7 (890) 123-4567`, `+7(890)123-4567`, `+7(890)1234567`
-        - US output: `[1-890-123-4567](tel:+18901234567)`
-        - International output: `[+7-890-123-4567](tel:+78901234567)`
+        - US output: `📞 [1-890-123-4567](tel:+18901234567)`
+        - International output: `📞 [+7-890-123-4567](tel:+78901234567)`
     - **Confidence scoring**: Phone number detection should use confidence levels that affect voting
         - Exact phone number match (input is only the phone number): High confidence (95)
         - Phone number embedded in other text: Lower confidence (60-70)
@@ -154,10 +154,10 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
 - [ ] Invalid or unconfigured project keys are left unchanged
 
 ### Phone Number Processing
-- [ ] 7-digit phone numbers are converted to `[123-4567](tel:1234567)` format
-- [ ] 10-digit phone numbers are converted to `[890-123-4567](tel:8901234567)` format
-- [ ] 11-digit US numbers are converted to `[1-890-123-4567](tel:+18901234567)` format
-- [ ] International numbers with + prefix are converted to `[+7-890-123-4567](tel:+78901234567)` format
+- [ ] 7-digit phone numbers are converted to `📞 [123-4567](tel:1234567)` format
+- [ ] 10-digit phone numbers are converted to `📞 [890-123-4567](tel:8901234567)` format
+- [ ] 11-digit US numbers are converted to `📞 [1-890-123-4567](tel:+18901234567)` format
+- [ ] International numbers with + prefix are converted to `📞 [+7-890-123-4567](tel:+78901234567)` format
 - [ ] Only specific separators are recognized (none, dash, dot, parentheses)
 - [ ] Space separators and mixed formats are rejected
 - [ ] Exact phone number matches have high confidence (95)
