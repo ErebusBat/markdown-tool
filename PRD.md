@@ -55,7 +55,27 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
         - Output: `[PLAT-12345](https://companycam.atlassian.net/browse/PLAT-12345)`
     - Should only detect keys that are setup in the configuration file
 
-4. If nothing matches then the text should be output verbatim
+4. **Detect and Transform Phone Numbers**
+    - Should detect phone numbers in various formats and transform them to markdown tel: links
+    - **7-digit numbers**: Match only specific separators, output in standard format
+        - Matches: `1234567`, `123-4567`, `123.4567`
+        - Does not match: `123 4567`, `123,4567`, `01234567` (leading zero)
+        - Output: `[123-4567](tel:1234567)`
+    - **10-digit numbers**: Match various common formats, output in standard format
+        - Matches: `8901234567`, `890-123-4567`, `890.123.4567`, `(890) 123-4567`, `(890)123-4567`, `(890)1234567`
+        - Does not match: `89012345670` (extra digit), `890 123 4567` (spaces), `(890) 123 4567` (mixed separators)
+        - Output: `[890-123-4567](tel:8901234567)`
+    - **11-digit numbers with country code**: Support US and international formats
+        - US numbers (country code 1): `18901234567`, `1-890-123-4567`, `1.890.123.4567`, `1 (890) 123-4567`, `1(890)123-4567`, `1(890)1234567`
+        - International numbers (must have + prefix): `+78901234567`, `+7-890-123-4567`, `+7.890.123.4567`, `+7 (890) 123-4567`, `+7(890)123-4567`, `+7(890)1234567`
+        - US output: `[1-890-123-4567](tel:+18901234567)`
+        - International output: `[+7-890-123-4567](tel:+78901234567)`
+    - **Confidence scoring**: Phone number detection should use confidence levels that affect voting
+        - Exact phone number match (input is only the phone number): High confidence (95)
+        - Phone number embedded in other text: Lower confidence (60-70)
+        - This ensures phone numbers don't override other content types inappropriately
+
+5. If nothing matches then the text should be output verbatim
 
 ### Input Methods
 - Standard input (stdin) for piping
@@ -105,6 +125,7 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
 ### As a Developer
 - I want to process URLs into proper markdown links for documentation
 - I want to convert GitHub and JIRA issue keys into full markdown links for documentation
+- I want to convert phone numbers into clickable tel: links for documentation and notes
 
 ## 5. Acceptance Criteria
 
@@ -131,6 +152,17 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
 - [ ] Standalone JIRA keys (e.g., `PLAT-12345`) are converted to full markdown links
 - [ ] Only configured project keys are recognized
 - [ ] Invalid or unconfigured project keys are left unchanged
+
+### Phone Number Processing
+- [ ] 7-digit phone numbers are converted to `[123-4567](tel:1234567)` format
+- [ ] 10-digit phone numbers are converted to `[890-123-4567](tel:8901234567)` format
+- [ ] 11-digit US numbers are converted to `[1-890-123-4567](tel:+18901234567)` format
+- [ ] International numbers with + prefix are converted to `[+7-890-123-4567](tel:+78901234567)` format
+- [ ] Only specific separators are recognized (none, dash, dot, parentheses)
+- [ ] Space separators and mixed formats are rejected
+- [ ] Exact phone number matches have high confidence (95)
+- [ ] Embedded phone numbers have lower confidence (60-70)
+- [ ] Invalid formats are left unchanged
 
 ### Input/Output Handling
 - [ ] Processes text from stdin when available
@@ -159,9 +191,11 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
 
 ### Testing
 - [ ] Unit tests cover all URL transformation scenarios
+- [ ] Unit tests cover all phone number transformation scenarios
 - [ ] Integration tests verify end-to-end functionality
 - [ ] Edge case tests ensure robust error handling
 - [ ] Configuration loading tests validate Viper integration
+- [ ] Phone number confidence scoring tests validate voting behavior
 
 ## 7. Non-Functional Requirements
 

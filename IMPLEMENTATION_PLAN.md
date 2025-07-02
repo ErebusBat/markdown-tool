@@ -208,21 +208,67 @@ Each phase should be considered complete when:
 - Code follows Go best practices and is well-documented
 - CLI provides helpful error messages and usage information
 
+## Phase 9: Phone Number Processing
+
+### 9.1 Phone Number Parser
+- [ ] Implement `PhoneParser` struct with phone number detection logic
+- [ ] Add regex patterns for 7-digit, 10-digit, and 11-digit phone numbers
+- [ ] Support multiple separator formats (none, dash, dot, parentheses)
+- [ ] Implement confidence scoring based on exact vs. embedded matches
+- [ ] Validate against specific format requirements (no spaces, no commas, etc.)
+
+### 9.2 Phone Number Writer
+- [ ] Implement `PhoneWriter` struct for tel: link generation
+- [ ] Format phone numbers consistently: `[123-4567](tel:1234567)`
+- [ ] Handle US vs. international number formatting
+- [ ] Support confidence-based voting (95 for exact, 60-70 for embedded)
+
+### 9.3 Integration
+- [ ] Add phone parser to `GetParsers()` function
+- [ ] Add phone writer to `GetWriters()` function
+- [ ] Update project structure documentation
+- [ ] Add phone number content types to `types.go`
+
+### 9.4 Testing
+- [ ] Unit tests for all phone number formats from examples
+- [ ] Test confidence scoring for exact vs. embedded numbers
+- [ ] Test rejection of invalid formats (spaces, extra digits, etc.)
+- [ ] Integration tests with other parsers/writers
+
+### 9.5 Updated Project Structure
+```
+internal/
+├── parser/
+│   ├── parser.go             # Parser interface ✅
+│   ├── url_parser.go         # URL detection and parsing ✅
+│   ├── jira_parser.go        # JIRA key detection ✅
+│   └── phone_parser.go       # Phone number detection [ ]
+└── writer/
+    ├── writer.go             # Writer interface and voting ✅
+    ├── url_writer.go         # URL transformation ✅
+    ├── jira_writer.go        # JIRA transformation ✅
+    ├── phone_writer.go       # Phone number transformation [ ]
+    └── passthrough_writer.go # Verbatim output ✅
+```
+
 ## Next Steps (Remaining Work)
 
 ### Immediate Priorities:
-1. **Phase 6.1**: Add version command and config validation command
-2. **Phase 6.2**: Implement structured logging with color output
-3. **Phase 7**: Comprehensive testing suite
-4. **Phase 8**: Build system and documentation
+1. **Phase 9**: Phone number processing implementation
+2. **Phase 6.1**: Add version command and config validation command
+3. **Phase 6.2**: Implement structured logging with color output
+4. **Phase 7**: Comprehensive testing suite (including phone numbers)
+5. **Phase 8**: Build system and documentation
 
 ### Recommended Development Order:
-1. Add version command and improve CLI interface
-2. Create unit tests for all parsers and writers
-3. Add integration tests with test fixtures
-4. Implement structured logging with debug output
-5. Create build scripts and cross-compilation
-6. Write comprehensive README and documentation
+1. **Implement phone number processing** (parser, writer, integration)
+2. Add comprehensive tests for phone number functionality
+3. Add version command and improve CLI interface
+4. Create unit tests for all remaining parsers and writers
+5. Add integration tests with test fixtures
+6. Implement structured logging with debug output
+7. Create build scripts and cross-compilation
+8. Write comprehensive README and documentation
 
 ### Current State:
-The application is **fully functional** and meets all core requirements from the PRD. It can be used immediately for markdown transformation tasks. The remaining work focuses on polish, testing, and operational concerns.
+The application is **fully functional** and meets all core requirements from the original PRD. It can be used immediately for markdown transformation tasks. **Phone number processing** has been added to the PRD and implementation plan as the next major feature. The remaining work focuses on implementing phone numbers, then polish, testing, and operational concerns.
