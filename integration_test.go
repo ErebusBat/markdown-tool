@@ -106,6 +106,68 @@ Insights
 A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog #6549`,
 			expectedOutput: "[CompanyCam/mobile#6549: A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog](https://github.com/CompanyCam/companycam-mobile/issues/6549)",
 		},
+		// New GitHub issue transformation tests
+		{
+			name:           "Simple GitHub issue with default org/repo",
+			input:          "adds blinc ddagent file #15407",
+			expectedOutput: "[CompanyCam/API#15407: adds blinc ddagent file](https://github.com/CompanyCam/Company-Cam-API/issues/15407)",
+		},
+		{
+			name:           "GitHub issue with username prefix",
+			input:          "courtneylw adds blinc ddagent file #15407",
+			expectedOutput: "[CompanyCam/API#15407: adds blinc ddagent file](https://github.com/CompanyCam/Company-Cam-API/issues/15407)",
+		},
+		{
+			name:           "GitHub issue with username and underscore",
+			input:          "plat_188 adds blinc ddagent file #15407",
+			expectedOutput: "[CompanyCam/API#15407: adds blinc ddagent file](https://github.com/CompanyCam/Company-Cam-API/issues/15407)",
+		},
+		{
+			name: "GitHub UI with username in title",
+			input: `CompanyCam
+Company-Cam-API
+
+Type / to search
+Code
+Issues
+209
+Pull requests
+67
+Discussions
+Actions
+Projects
+3
+Wiki
+Security
+6
+Insights
+Settings
+courtneylw adds blinc ddagent file #15407`,
+			expectedOutput: "[CompanyCam/API#15407: courtneylw adds blinc ddagent file](https://github.com/CompanyCam/Company-Cam-API/issues/15407)",
+		},
+		{
+			name: "GitHub UI without username in title", 
+			input: `CompanyCam
+Company-Cam-API
+
+Type / to search
+Code
+Issues
+209
+Pull requests
+67
+Discussions
+Actions
+Projects
+3
+Wiki
+Security
+6
+Insights
+Settings
+plat_188 adds blinc ddagent file #15407`,
+			expectedOutput: "[CompanyCam/API#15407: plat_188 adds blinc ddagent file](https://github.com/CompanyCam/Company-Cam-API/issues/15407)",
+		},
 		{
 			name: "JIRA Key with description - PLAT",
 			input: `PLAT-192

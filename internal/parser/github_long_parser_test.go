@@ -52,6 +52,29 @@ test-repo
 Some issue title here #42`,
 			expected: true,
 		},
+		// New test cases for simple issue patterns
+		{
+			name:     "Simple issue title only",
+			input:    "adds blinc ddagent file #15407",
+			expected: true,
+		},
+		{
+			name:     "Issue with username prefix",
+			input:    "courtneylw adds blinc ddagent file #15407",
+			expected: true,
+		},
+		{
+			name:     "Issue with username and underscore",
+			input:    "plat_188 adds blinc ddagent file #15407",
+			expected: true,
+		},
+		{
+			name: "Multi-line with username prefix",
+			input: `CompanyCam
+Company-Cam-API
+courtneylw adds blinc ddagent file #15407`,
+			expected: true,
+		},
 		{
 			name:     "Too few lines",
 			input:    "CompanyCam\ncompanycam-mobile",
@@ -67,15 +90,11 @@ Just some text without number`,
 			expected: false,
 		},
 		{
-			name: "Missing org/repo pattern",
+			name: "Missing org/repo pattern - multi-line without GitHub UI",
 			input: `Some random text
 More random text
+Another line
 But we have an issue title #123`,
-			expected: false,
-		},
-		{
-			name:     "Single line",
-			input:    "Just a single line #123",
 			expected: false,
 		},
 		{
@@ -96,7 +115,12 @@ But we have an issue title #123`,
 }
 
 func TestGitHubLongParser_Parse(t *testing.T) {
-	cfg := &types.Config{}
+	cfg := &types.Config{
+		GitHub: types.GitHubConfig{
+			DefaultOrg:  "CompanyCam",
+			DefaultRepo: "Company-Cam-API",
+		},
+	}
 	parser := NewGitHubLongParser(cfg)
 
 	tests := []struct {
@@ -133,7 +157,7 @@ A specific Logger.error call in the SSO login workflow doesn't seem to log data 
 			expectedNumber: "6549",
 		},
 		{
-			name: "Simple GitHub issue",
+			name: "Multi-line GitHub issue",
 			input: `MyOrg
 my-repo
 Fix the authentication bug #123`,
@@ -168,14 +192,100 @@ Just some description without number`,
 			expectSuccess: false,
 		},
 		{
-			name: "Invalid input - missing components",
+			name: "Single line issue (should use defaults)",
 			input: `Only one line with issue #123`,
-			expectSuccess: false,
+			expectSuccess:  true,
+			expectedOrg:    "CompanyCam",
+			expectedRepo:   "Company-Cam-API",
+			expectedTitle:  "Only one line with issue",
+			expectedNumber: "123",
 		},
 		{
 			name:          "Empty input",
 			input:         "",
 			expectSuccess: false,
+		},
+		// New test cases for simple issue patterns
+		{
+			name:           "Simple issue title with default org/repo",
+			input:          "adds blinc ddagent file #15407",
+			expectSuccess:  true,
+			expectedOrg:    "CompanyCam",
+			expectedRepo:   "Company-Cam-API",
+			expectedTitle:  "adds blinc ddagent file",
+			expectedNumber: "15407",
+		},
+		{
+			name:           "Issue with username prefix",
+			input:          "courtneylw adds blinc ddagent file #15407",
+			expectSuccess:  true,
+			expectedOrg:    "CompanyCam",
+			expectedRepo:   "Company-Cam-API",
+			expectedTitle:  "adds blinc ddagent file",
+			expectedNumber: "15407",
+		},
+		{
+			name:           "Issue with username and underscore",
+			input:          "plat_188 adds blinc ddagent file #15407",
+			expectSuccess:  true,
+			expectedOrg:    "CompanyCam",
+			expectedRepo:   "Company-Cam-API",
+			expectedTitle:  "adds blinc ddagent file",
+			expectedNumber: "15407",
+		},
+		{
+			name: "Multi-line GitHub UI with username",
+			input: `CompanyCam
+Company-Cam-API
+
+Type / to search
+Code
+Issues
+209
+Pull requests
+67
+Discussions
+Actions
+Projects
+3
+Wiki
+Security
+6
+Insights
+Settings
+courtneylw adds blinc ddagent file #15407`,
+			expectSuccess:  true,
+			expectedOrg:    "CompanyCam",
+			expectedRepo:   "Company-Cam-API",
+			expectedTitle:  "courtneylw adds blinc ddagent file",
+			expectedNumber: "15407",
+		},
+		{
+			name: "Multi-line GitHub UI without username in title",
+			input: `CompanyCam
+Company-Cam-API
+
+Type / to search
+Code
+Issues
+209
+Pull requests
+67
+Discussions
+Actions
+Projects
+3
+Wiki
+Security
+6
+Insights
+Settings
+plat_188 adds blinc ddagent file #15407`,
+			expectSuccess:  true,
+			expectedOrg:    "CompanyCam",
+			expectedRepo:   "Company-Cam-API",
+			expectedTitle:  "plat_188 adds blinc ddagent file",
+			expectedNumber: "15407",
 		},
 	}
 
@@ -196,8 +306,17 @@ Just some description without number`,
 					t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, types.ContentTypeGitHubLong)
 				}
 
-				if ctx.Confidence != 90 {
-					t.Errorf("Confidence = %v, want 90", ctx.Confidence)
+				// Simple issue patterns have confidence 95, multi-line patterns have 90
+				expectedConfidence := 90
+				if tt.name == "Simple issue title with default org/repo" ||
+				   tt.name == "Issue with username prefix" ||
+				   tt.name == "Issue with username and underscore" ||
+				   tt.name == "Single line issue (should use defaults)" {
+					expectedConfidence = 95
+				}
+				
+				if ctx.Confidence != expectedConfidence {
+					t.Errorf("Confidence = %v, want %v", ctx.Confidence, expectedConfidence)
 				}
 
 				if org := ctx.Metadata["org"]; org != tt.expectedOrg {
@@ -259,6 +378,25 @@ func TestGitHubLongParser_HelperFunctions(t *testing.T) {
 		{"Invalid - no number", "hasIssueTitleWithNumber", "Just some text", false},
 		{"Invalid - number not at end", "hasIssueTitleWithNumber", "Issue #123 with more text", false},
 		{"Invalid - no hash", "hasIssueTitleWithNumber", "Issue 123", false},
+
+		// hasGitHubUsernamePrefix tests
+		{"Valid username prefix", "hasGitHubUsernamePrefix", "courtneylw adds blinc ddagent file #15407", true},
+		{"Valid username with underscore", "hasGitHubUsernamePrefix", "plat_188 adds blinc ddagent file #15407", true},
+		{"Valid username with hyphen", "hasGitHubUsernamePrefix", "user-name fixes issue #123", true},
+		{"Invalid - no issue number", "hasGitHubUsernamePrefix", "courtneylw adds blinc ddagent file", false},
+		{"Invalid - no username", "hasGitHubUsernamePrefix", "adds blinc ddagent file #15407", false},
+		{"Invalid - number not at end", "hasGitHubUsernamePrefix", "user adds #123 more text", false},
+
+		// isGitHubUsername tests  
+		{"Valid username", "isGitHubUsername", "courtneylw", true},
+		{"Valid username with underscore", "isGitHubUsername", "plat_188", true},
+		{"Valid username with hyphen", "isGitHubUsername", "user-name", true},
+		{"Valid single char", "isGitHubUsername", "a", true},
+		{"Invalid - starts with hyphen", "isGitHubUsername", "-invalid", false},
+		{"Invalid - ends with hyphen", "isGitHubUsername", "invalid-", false},
+		{"Invalid - too long", "isGitHubUsername", "thisusernameistoolongforgihtubusernameextra", false},
+		{"Invalid - empty", "isGitHubUsername", "", false},
+		{"Invalid - special chars", "isGitHubUsername", "user@name", false},
 	}
 
 	for _, tt := range tests {
@@ -271,6 +409,10 @@ func TestGitHubLongParser_HelperFunctions(t *testing.T) {
 				result = isValidRepoName(tt.input)
 			case "hasIssueTitleWithNumber":
 				result = hasIssueTitleWithNumber(tt.input)
+			case "hasGitHubUsernamePrefix":
+				result = hasGitHubUsernamePrefix(tt.input)
+			case "isGitHubUsername":
+				result = isGitHubUsername(tt.input)
 			default:
 				t.Fatalf("Unknown function: %s", tt.function)
 			}
@@ -331,6 +473,78 @@ func TestExtractIssueTitleAndNumber(t *testing.T) {
 			
 			if number != tt.expectedNumber {
 				t.Errorf("extractIssueTitleAndNumber() number = %q, want %q", number, tt.expectedNumber)
+			}
+		})
+	}
+}
+
+func TestExtractUsernameAndIssue(t *testing.T) {
+	tests := []struct {
+		name            string
+		input           string
+		expectedTitle   string
+		expectedNumber  string
+	}{
+		{
+			name:           "Username with simple issue",
+			input:          "courtneylw adds blinc ddagent file #15407",
+			expectedTitle:  "adds blinc ddagent file",
+			expectedNumber: "15407",
+		},
+		{
+			name:           "Username with underscore",
+			input:          "plat_188 adds blinc ddagent file #15407",
+			expectedTitle:  "adds blinc ddagent file",
+			expectedNumber: "15407",
+		},
+		{
+			name:           "Username with hyphen",
+			input:          "user-name fixes authentication bug #999",
+			expectedTitle:  "fixes authentication bug",
+			expectedNumber: "999",
+		},
+		{
+			name:           "Username with complex issue title",
+			input:          "developer123 implement new feature for user management system #1234",
+			expectedTitle:  "implement new feature for user management system",
+			expectedNumber: "1234",
+		},
+		{
+			name:           "Issue with extra spaces",
+			input:          "  user_123   fix   bug   #456  ",
+			expectedTitle:  "fix   bug",
+			expectedNumber: "456",
+		},
+		{
+			name:           "Invalid format - no username (common word)",
+			input:          "adds blinc ddagent file #15407",
+			expectedTitle:  "",
+			expectedNumber: "",
+		},
+		{
+			name:           "Invalid format - no number",
+			input:          "courtneylw adds blinc ddagent file",
+			expectedTitle:  "",
+			expectedNumber: "",
+		},
+		{
+			name:           "Invalid format - number not at end",
+			input:          "user adds #123 more text",
+			expectedTitle:  "",
+			expectedNumber: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			title, number := extractUsernameAndIssue(tt.input)
+			
+			if title != tt.expectedTitle {
+				t.Errorf("extractUsernameAndIssue() title = %q, want %q", title, tt.expectedTitle)
+			}
+			
+			if number != tt.expectedNumber {
+				t.Errorf("extractUsernameAndIssue() number = %q, want %q", number, tt.expectedNumber)
 			}
 		})
 	}
