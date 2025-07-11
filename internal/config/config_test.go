@@ -61,6 +61,24 @@ func TestLoad_DefaultConfig(t *testing.T) {
 	if len(cfg.GitHub.Mappings) == 0 {
 		t.Error("GitHub.Mappings should not be empty")
 	}
+
+	// Verify URL domain mappings
+	if len(cfg.URL.DomainMappings) == 0 {
+		t.Error("URL.DomainMappings should not be empty")
+	}
+
+	expectedDomainMappings := map[string]string{
+		"companycam.slack.com": "slack",
+		"youtube.com":          "YouTube",
+	}
+
+	for domain, expectedText := range expectedDomainMappings {
+		if actualText, exists := cfg.URL.DomainMappings[domain]; !exists {
+			t.Errorf("URL.DomainMappings missing domain %q", domain)
+		} else if actualText != expectedText {
+			t.Errorf("URL.DomainMappings[%q] = %q, want %q", domain, actualText, expectedText)
+		}
+	}
 }
 
 func TestLoad_CustomConfigFile(t *testing.T) {
@@ -78,6 +96,11 @@ jira:
   domain: "https://test.atlassian.net"
   projects:
     - "TEST"
+
+url:
+  domain_mappings:
+    testslack: "test-slack"
+    example: "Example"
 `
 
 	err := os.WriteFile(configPath, []byte(customConfig), 0644)
@@ -107,6 +130,24 @@ jira:
 	if len(cfg.JIRA.Projects) != 1 || cfg.JIRA.Projects[0] != "TEST" {
 		t.Errorf("JIRA.Projects = %v, want [TEST]", cfg.JIRA.Projects)
 	}
+
+	// Verify URL domain mappings
+	expectedURLMappings := map[string]string{
+		"testslack": "test-slack",
+		"example":   "Example",
+	}
+
+	if len(cfg.URL.DomainMappings) != len(expectedURLMappings) {
+		t.Errorf("URL.DomainMappings length = %v, want %v", len(cfg.URL.DomainMappings), len(expectedURLMappings))
+	}
+
+	for domain, expectedText := range expectedURLMappings {
+		if actualText, exists := cfg.URL.DomainMappings[domain]; !exists {
+			t.Errorf("URL.DomainMappings missing domain %q", domain)
+		} else if actualText != expectedText {
+			t.Errorf("URL.DomainMappings[%q] = %q, want %q", domain, actualText, expectedText)
+		}
+	}
 }
 
 func TestLoad_InvalidConfigFile(t *testing.T) {
@@ -125,5 +166,47 @@ func TestLoad_InvalidConfigFile(t *testing.T) {
 	_, err = Load(configPath)
 	if err == nil {
 		t.Error("Expected error loading invalid config file")
+	}
+}
+
+func TestLoad_DomainKeyParsingFixed(t *testing.T) {
+	// Create a temporary config file with domain names containing dots
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "domain-test-config.yaml")
+
+	// This config should now load successfully with our custom key delimiter fix
+	workingConfig := `url:
+  domain_mappings:
+    "companycam.slack.com": "slack"
+    "youtube.com": "YouTube"
+`
+
+	err := os.WriteFile(configPath, []byte(workingConfig), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create test config file: %v", err)
+	}
+
+	// This should now load correctly with our fix
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Unexpected error loading config with dotted domain keys: %v", err)
+	}
+
+	// Verify the domain mappings were loaded correctly
+	expectedMappings := map[string]string{
+		"companycam.slack.com": "slack",
+		"youtube.com":          "YouTube",
+	}
+
+	if len(cfg.URL.DomainMappings) != len(expectedMappings) {
+		t.Errorf("URL.DomainMappings length = %v, want %v", len(cfg.URL.DomainMappings), len(expectedMappings))
+	}
+
+	for domain, expectedText := range expectedMappings {
+		if actualText, exists := cfg.URL.DomainMappings[domain]; !exists {
+			t.Errorf("URL.DomainMappings missing domain %q", domain)
+		} else if actualText != expectedText {
+			t.Errorf("URL.DomainMappings[%q] = %q, want %q", domain, actualText, expectedText)
+		}
 	}
 }

@@ -260,17 +260,20 @@ func TestURLWriter_WriteGitHubLongURL(t *testing.T) {
 }
 
 func TestURLWriter_WriteGenericURL(t *testing.T) {
-	cfg := &types.Config{}
-	writer := NewURLWriter(cfg)
-
 	tests := []struct {
 		name           string
+		config         *types.Config
 		originalInput  string
 		metadata       map[string]interface{}
 		expectedOutput string
 	}{
 		{
-			name:          "Generic URL with www",
+			name: "Generic URL with www (no mapping)",
+			config: &types.Config{
+				URL: types.URLConfig{
+					DomainMappings: map[string]string{},
+				},
+			},
 			originalInput: "https://www.example.com/path/to/page",
 			metadata: map[string]interface{}{
 				"domain": "www.example.com",
@@ -278,7 +281,12 @@ func TestURLWriter_WriteGenericURL(t *testing.T) {
 			expectedOutput: "[example.com](https://www.example.com/path/to/page)",
 		},
 		{
-			name:          "Generic URL with ww3",
+			name: "Generic URL with ww3 (no mapping)",
+			config: &types.Config{
+				URL: types.URLConfig{
+					DomainMappings: map[string]string{},
+				},
+			},
 			originalInput: "http://ww3.domain.tld/path/to/document?query=value#anchor",
 			metadata: map[string]interface{}{
 				"domain": "ww3.domain.tld",
@@ -286,17 +294,96 @@ func TestURLWriter_WriteGenericURL(t *testing.T) {
 			expectedOutput: "[domain.tld](http://ww3.domain.tld/path/to/document?query=value#anchor)",
 		},
 		{
-			name:          "Simple domain",
+			name: "Simple domain (no mapping)",
+			config: &types.Config{
+				URL: types.URLConfig{
+					DomainMappings: map[string]string{},
+				},
+			},
 			originalInput: "https://example.org/page",
 			metadata: map[string]interface{}{
 				"domain": "example.org",
 			},
 			expectedOutput: "[example.org](https://example.org/page)",
 		},
+		{
+			name: "Slack URL with domain mapping",
+			config: &types.Config{
+				URL: types.URLConfig{
+					DomainMappings: map[string]string{
+						"companycam.slack.com": "slack",
+					},
+				},
+			},
+			originalInput: "https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069",
+			metadata: map[string]interface{}{
+				"domain": "companycam.slack.com",
+			},
+			expectedOutput: "[slack](https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069)",
+		},
+		{
+			name: "YouTube URL with domain mapping",
+			config: &types.Config{
+				URL: types.URLConfig{
+					DomainMappings: map[string]string{
+						"youtube.com": "YouTube",
+					},
+				},
+			},
+			originalInput: "https://youtube.com/watch?v=abc123",
+			metadata: map[string]interface{}{
+				"domain": "youtube.com",
+			},
+			expectedOutput: "[YouTube](https://youtube.com/watch?v=abc123)",
+		},
+		{
+			name: "Case-insensitive domain mapping",
+			config: &types.Config{
+				URL: types.URLConfig{
+					DomainMappings: map[string]string{
+						"companycam.slack.com": "slack",
+					},
+				},
+			},
+			originalInput: "https://CompanyCam.Slack.com/archives/test",
+			metadata: map[string]interface{}{
+				"domain": "CompanyCam.Slack.com",
+			},
+			expectedOutput: "[slack](https://CompanyCam.Slack.com/archives/test)",
+		},
+		{
+			name: "Domain with mapping but different domain",
+			config: &types.Config{
+				URL: types.URLConfig{
+					DomainMappings: map[string]string{
+						"companycam.slack.com": "slack",
+					},
+				},
+			},
+			originalInput: "https://example.com/path",
+			metadata: map[string]interface{}{
+				"domain": "example.com",
+			},
+			expectedOutput: "[example.com](https://example.com/path)",
+		},
+		{
+			name: "Domain mapping with nil DomainMappings",
+			config: &types.Config{
+				URL: types.URLConfig{
+					DomainMappings: nil,
+				},
+			},
+			originalInput: "https://example.com/path",
+			metadata: map[string]interface{}{
+				"domain": "example.com",
+			},
+			expectedOutput: "[example.com](https://example.com/path)",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			writer := NewURLWriter(tt.config)
 			ctx := &types.ParseContext{
 				OriginalInput: tt.originalInput,
 				DetectedType:  types.ContentTypeURL,

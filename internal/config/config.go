@@ -11,8 +11,13 @@ import (
 
 // Load loads configuration from file or creates default config
 func Load(configFile string) (*types.Config, error) {
+	// Create a new Viper instance with custom key delimiter to handle domain names with dots
+	// Using "::" instead of "." prevents domain names like "companycam.slack.com" 
+	// from being interpreted as nested YAML structures
+	v := viper.NewWithOptions(viper.KeyDelimiter("::"))
+	
 	if configFile != "" {
-		viper.SetConfigFile(configFile)
+		v.SetConfigFile(configFile)
 	} else {
 		// Set default config path
 		home, err := os.UserHomeDir()
@@ -35,17 +40,17 @@ func Load(configFile string) (*types.Config, error) {
 			}
 		}
 
-		viper.SetConfigFile(configPath)
+		v.SetConfigFile(configPath)
 	}
 
-	viper.SetConfigType("yaml")
+	v.SetConfigType("yaml")
 
-	if err := viper.ReadInConfig(); err != nil {
+	if err := v.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	var config types.Config
-	if err := viper.Unmarshal(&config); err != nil {
+	if err := v.Unmarshal(&config); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
@@ -65,6 +70,11 @@ jira:
   projects:
     - "PLAT"
     - "SPEED"
+
+url:
+  domain_mappings:
+    "companycam.slack.com": "slack"
+    "youtube.com": "YouTube"
 `
 
 	return os.WriteFile(path, []byte(defaultConfig), 0644)

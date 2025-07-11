@@ -43,6 +43,7 @@ type Writer interface {
 type Config struct {
 	GitHub GitHubConfig `yaml:"github" mapstructure:"github"`
 	JIRA   JIRAConfig   `yaml:"jira" mapstructure:"jira"`
+	URL    URLConfig    `yaml:"url" mapstructure:"url"`
 }
 
 // GitHubConfig holds GitHub-specific configuration
@@ -56,4 +57,9 @@ type GitHubConfig struct {
 type JIRAConfig struct {
 	Domain   string   `yaml:"domain" mapstructure:"domain"`
 	Projects []string `yaml:"projects" mapstructure:"projects"`
+}
+
+// URLConfig holds URL-specific configuration
+type URLConfig struct {
+	DomainMappings map[string]string `yaml:"domain_mappings" mapstructure:"domain_mappings"`
 }

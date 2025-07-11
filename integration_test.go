@@ -24,6 +24,12 @@ func TestEndToEndTransformation(t *testing.T) {
 			Domain:   "https://companycam.atlassian.net",
 			Projects: []string{"PLAT", "SPEED"},
 		},
+		URL: types.URLConfig{
+			DomainMappings: map[string]string{
+				"companycam.slack.com": "slack",
+				"youtube.com":          "YouTube",
+			},
+		},
 	}
 
 	tests := []struct {
@@ -60,6 +66,22 @@ func TestEndToEndTransformation(t *testing.T) {
 			name:           "Generic URL",
 			input:          "http://ww3.domain.tld/path/to/document?query=value#anchor",
 			expectedOutput: "[domain.tld](http://ww3.domain.tld/path/to/document?query=value#anchor)",
+		},
+		// URL domain mapping tests
+		{
+			name:           "Slack URL with domain mapping",
+			input:          "https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069",
+			expectedOutput: "[slack](https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069)",
+		},
+		{
+			name:           "YouTube URL with domain mapping",
+			input:          "https://youtube.com/watch?v=abc123",
+			expectedOutput: "[YouTube](https://youtube.com/watch?v=abc123)",
+		},
+		{
+			name:           "Unmapped domain fallback behavior",
+			input:          "https://example.com/path/to/page",
+			expectedOutput: "[example.com](https://example.com/path/to/page)",
 		},
 		{
 			name:           "JIRA Key - PLAT",
@@ -468,5 +490,70 @@ func TestGitHubMappingIntegration(t *testing.T) {
 	expected2 := "[Company/Long-Repo-Name#123](https://github.com/Company/Long-Repo-Name/pull/123)"
 	if output2 != expected2 {
 		t.Errorf("Without mapping: got %q, want %q", output2, expected2)
+	}
+}
+
+// TestURLDomainMappingIntegration tests URL domain mappings
+func TestURLDomainMappingIntegration(t *testing.T) {
+	cfgWithMapping := &types.Config{
+		URL: types.URLConfig{
+			DomainMappings: map[string]string{
+				"companycam.slack.com": "slack",
+				"youtube.com":          "YouTube",
+			},
+		},
+	}
+
+	cfgWithoutMapping := &types.Config{
+		URL: types.URLConfig{
+			DomainMappings: map[string]string{},
+		},
+	}
+
+	tests := []struct {
+		name           string
+		config         *types.Config
+		input          string
+		expectedOutput string
+	}{
+		{
+			name:           "Slack URL with mapping",
+			config:         cfgWithMapping,
+			input:          "https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069",
+			expectedOutput: "[slack](https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069)",
+		},
+		{
+			name:           "YouTube URL with mapping",
+			config:         cfgWithMapping,
+			input:          "https://youtube.com/watch?v=abc123",
+			expectedOutput: "[YouTube](https://youtube.com/watch?v=abc123)",
+		},
+		{
+			name:           "Slack URL without mapping",
+			config:         cfgWithoutMapping,
+			input:          "https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069",
+			expectedOutput: "[companycam.slack.com](https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069)",
+		},
+		{
+			name:           "YouTube URL without mapping",
+			config:         cfgWithoutMapping,
+			input:          "https://youtube.com/watch?v=abc123",
+			expectedOutput: "[youtube.com](https://youtube.com/watch?v=abc123)",
+		},
+		{
+			name:           "Case-insensitive domain matching",
+			config:         cfgWithMapping,
+			input:          "https://CompanyCam.Slack.com/archives/test",
+			expectedOutput: "[slack](https://CompanyCam.Slack.com/archives/test)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			output := processInput(t, tt.config, tt.input)
+			if output != tt.expectedOutput {
+				t.Errorf("processInput(%q) = %q, want %q", tt.input, output, tt.expectedOutput)
+			}
+		})
 	}
 }

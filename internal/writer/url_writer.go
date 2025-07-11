@@ -148,5 +148,17 @@ func (w *URLWriter) writeGenericURL(ctx *types.ParseContext) (string, error) {
 	domain = strings.TrimPrefix(domain, "www.")
 	domain = strings.TrimPrefix(domain, "ww3.")
 
-	return fmt.Sprintf("[%s](%s)", domain, ctx.OriginalInput), nil
+	// Check for domain mappings first
+	linkText := domain
+	if w.config.URL.DomainMappings != nil {
+		// Try case-insensitive lookup since Viper lowercases map keys
+		for key, mapped := range w.config.URL.DomainMappings {
+			if strings.EqualFold(key, domain) {
+				linkText = mapped
+				break
+			}
+		}
+	}
+
+	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
 }
