@@ -68,8 +68,8 @@ func TestLoad_DefaultConfig(t *testing.T) {
 	}
 
 	expectedDomainMappings := map[string]string{
-		"companycam.slack.com": "slack",
-		"youtube.com":          "YouTube",
+		"companycam_slack_com": "slack",
+		"youtube_com":          "YouTube",
 	}
 
 	for domain, expectedText := range expectedDomainMappings {
@@ -170,15 +170,15 @@ func TestLoad_InvalidConfigFile(t *testing.T) {
 }
 
 func TestLoad_DomainKeyParsingFixed(t *testing.T) {
-	// Create a temporary config file with domain names containing dots
+	// Create a temporary config file with underscore-based domain mappings
 	tempDir := t.TempDir()
 	configPath := filepath.Join(tempDir, "domain-test-config.yaml")
 
-	// This config should now load successfully with our custom key delimiter fix
+	// This config should load successfully with underscore-based keys
 	workingConfig := `url:
   domain_mappings:
-    "companycam.slack.com": "slack"
-    "youtube.com": "YouTube"
+    companycam_slack_com: "slack"
+    youtube_com: "YouTube"
 `
 
 	err := os.WriteFile(configPath, []byte(workingConfig), 0644)
@@ -186,16 +186,16 @@ func TestLoad_DomainKeyParsingFixed(t *testing.T) {
 		t.Fatalf("Failed to create test config file: %v", err)
 	}
 
-	// This should now load correctly with our fix
+	// This should now load correctly with underscore-based keys
 	cfg, err := Load(configPath)
 	if err != nil {
-		t.Fatalf("Unexpected error loading config with dotted domain keys: %v", err)
+		t.Fatalf("Unexpected error loading config with underscore domain keys: %v", err)
 	}
 
 	// Verify the domain mappings were loaded correctly
 	expectedMappings := map[string]string{
-		"companycam.slack.com": "slack",
-		"youtube.com":          "YouTube",
+		"companycam_slack_com": "slack",
+		"youtube_com":          "YouTube",
 	}
 
 	if len(cfg.URL.DomainMappings) != len(expectedMappings) {

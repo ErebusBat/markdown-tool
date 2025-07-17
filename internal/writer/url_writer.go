@@ -151,9 +151,12 @@ func (w *URLWriter) writeGenericURL(ctx *types.ParseContext) (string, error) {
 	// Check for domain mappings first
 	linkText := domain
 	if w.config.URL.DomainMappings != nil {
+		// Convert domain to underscore format for lookup (e.g., mail.google.com -> mail_google_com)
+		domainKey := strings.ReplaceAll(domain, ".", "_")
+		
 		// Try case-insensitive lookup since Viper lowercases map keys
 		for key, mapped := range w.config.URL.DomainMappings {
-			if strings.EqualFold(key, domain) {
+			if strings.EqualFold(key, domainKey) {
 				linkText = mapped
 				break
 			}

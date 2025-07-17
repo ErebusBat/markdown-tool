@@ -311,7 +311,7 @@ func TestURLWriter_WriteGenericURL(t *testing.T) {
 			config: &types.Config{
 				URL: types.URLConfig{
 					DomainMappings: map[string]string{
-						"companycam.slack.com": "slack",
+						"companycam_slack_com": "slack",
 					},
 				},
 			},
@@ -326,7 +326,7 @@ func TestURLWriter_WriteGenericURL(t *testing.T) {
 			config: &types.Config{
 				URL: types.URLConfig{
 					DomainMappings: map[string]string{
-						"youtube.com": "YouTube",
+						"youtube_com": "YouTube",
 					},
 				},
 			},
@@ -341,7 +341,7 @@ func TestURLWriter_WriteGenericURL(t *testing.T) {
 			config: &types.Config{
 				URL: types.URLConfig{
 					DomainMappings: map[string]string{
-						"companycam.slack.com": "slack",
+						"companycam_slack_com": "slack",
 					},
 				},
 			},
@@ -356,7 +356,7 @@ func TestURLWriter_WriteGenericURL(t *testing.T) {
 			config: &types.Config{
 				URL: types.URLConfig{
 					DomainMappings: map[string]string{
-						"companycam.slack.com": "slack",
+						"companycam_slack_com": "slack",
 					},
 				},
 			},

@@ -73,8 +73,8 @@ jira:
 
 url:
   domain_mappings:
-    "companycam.slack.com": "slack"
-    "youtube.com": "YouTube"
+    companycam_slack_com: "slack"
+    youtube_com: "YouTube"
 `
 
 	return os.WriteFile(path, []byte(defaultConfig), 0644)

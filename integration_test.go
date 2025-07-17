@@ -26,8 +26,8 @@ func TestEndToEndTransformation(t *testing.T) {
 		},
 		URL: types.URLConfig{
 			DomainMappings: map[string]string{
-				"companycam.slack.com": "slack",
-				"youtube.com":          "YouTube",
+				"companycam_slack_com": "slack",
+				"youtube_com":          "YouTube",
 			},
 		},
 	}
@@ -498,8 +498,8 @@ func TestURLDomainMappingIntegration(t *testing.T) {
 	cfgWithMapping := &types.Config{
 		URL: types.URLConfig{
 			DomainMappings: map[string]string{
-				"companycam.slack.com": "slack",
-				"youtube.com":          "YouTube",
+				"companycam_slack_com": "slack",
+				"youtube_com":          "YouTube",
 			},
 		},
 	}
