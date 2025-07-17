@@ -47,6 +47,12 @@ test-watch:
 	@echo "Running tests in watch mode..."
 	find . -name "*.go" | entr -c go test -v ./...
 
+# Run the application directly with go run
+.PHONY: run
+run:
+	@echo "Running $(BINARY_NAME) with go run..."
+	go run $(MAIN_PACKAGE)
+
 # Run the application in debug mode
 .PHONY: debug
 debug: build
@@ -143,6 +149,7 @@ help:
 	@echo "  test           Run tests"
 	@echo "  test-coverage  Run tests with coverage report"
 	@echo "  test-watch     Run tests in watch mode (requires entr)"
+	@echo "  run            Run application directly with go run"
 	@echo "  debug          Run application in debug mode"
 	@echo "  run-samples    Test application with sample inputs"
 	@echo "  clean          Clean build artifacts"
@@ -159,5 +166,6 @@ help:
 	@echo "Examples:"
 	@echo "  make build                    # Build the application"
 	@echo "  make test                     # Run tests"
+	@echo "  make run                      # Run with go run (quick iteration)"
 	@echo "  make run-samples              # Test with sample inputs"
 	@echo "  make VERSION=v1.0.0 release   # Create release"
