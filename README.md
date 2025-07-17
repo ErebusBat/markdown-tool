@@ -17,6 +17,7 @@ The tool processes input through a three-phase architecture: Parse → Vote → 
 | **JIRA Key + Description** | `PLAT-192`<br/><br/>`webhook proxy logs` | `[PLAT-192: webhook proxy logs](https://companycam.atlassian.net/browse/PLAT-192)` | Multi-line format support |
 | **Notion URL** | `https://www.notion.so/companycam/VS-Code-Setup-654a6b07...` | `[VS Code Setup for Standard rb RubyLSP](https://www.notion.so/companycam/VS-Code-Setup-654a6b07...)` | Extracts title from URL |
 | **Generic URL** | `https://www.example.com/path/to/page` | `[example.com](https://www.example.com/path/to/page)` | Strips www/ww* prefixes |
+| **URL with Domain Mapping** | `https://companycam.slack.com/archives/D08UZ6X17MJ/...` | `[slack](https://companycam.slack.com/archives/D08UZ6X17MJ/...)` | Custom domain display names |
 | **Plain Text** | `hello world` | `hello world` | Passed through unchanged |
 
 ## GitHub URLs
@@ -218,6 +219,34 @@ http://ww3.domain.tld/path/to/document?query=value#anchor
 [domain.tld](http://ww3.domain.tld/path/to/document?query=value#anchor)
 ```
 
+### URL Domain Mappings
+
+For frequently used domains, you can configure custom display names instead of using the domain name:
+
+**Input:**
+```
+https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069
+```
+
+**Output with domain mapping:**
+```
+[slack](https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069)
+```
+
+**Output without domain mapping:**
+```
+[companycam.slack.com](https://companycam.slack.com/archives/D08UZ6X17MJ/p1752272874485069)
+```
+
+#### More Examples
+
+| Input URL | Mapped Output | Unmapped Output |
+|-----------|---------------|-----------------|
+| `https://youtube.com/watch?v=abc123` | `[YouTube](https://youtube.com/watch?v=abc123)` | `[youtube.com](https://youtube.com/watch?v=abc123)` |
+| `https://CompanyCam.Slack.com/archives/test` | `[slack](https://CompanyCam.Slack.com/archives/test)` | `[companycam.slack.com](https://CompanyCam.Slack.com/archives/test)` |
+
+Domain mapping is case-insensitive, so `CompanyCam.Slack.com` matches the mapping for `companycam.slack.com`.
+
 ## Configuration
 
 The tool uses YAML configuration stored in `~/.config/markdown-tool/config.yaml`:
@@ -233,6 +262,11 @@ github:
 jira:
   domain: "https://companycam.atlassian.net"
   projects: ["PLAT", "SPEED"]
+
+url:
+  domain_mappings:
+    "companycam.slack.com": "slack"
+    "youtube.com": "YouTube"
 ```
 
 ## Architecture
