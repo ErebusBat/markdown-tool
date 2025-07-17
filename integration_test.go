@@ -1,6 +1,8 @@
 package main
 
 import (
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/erebusbat/markdown-tool/internal/parser"
@@ -381,6 +383,43 @@ This should not be transformed`,
 			input:          "(890)12345679",
 			expectedOutput: "(890)12345679",
 		},
+		
+		// Tel URI tests - should be preprocessed and handled by existing phone parsers
+		{
+			name:           "Tel URI 7-digit",
+			input:          "tel:1234567",
+			expectedOutput: "📞 [123-4567](tel:1234567)",
+		},
+		{
+			name:           "Tel URI 10-digit",
+			input:          "tel:8901234567",
+			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
+		},
+		{
+			name:           "Tel URI 11-digit US",
+			input:          "tel:18901234567",
+			expectedOutput: "📞 [1-890-123-4567](tel:+18901234567)",
+		},
+		{
+			name:           "Tel URI international",
+			input:          "tel:+18901234567",
+			expectedOutput: "📞 [+1-890-123-4567](tel:+18901234567)",
+		},
+		{
+			name:           "Tel URI with dashes",
+			input:          "tel:890-123-4567",
+			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
+		},
+		{
+			name:           "Tel URI with parentheses",
+			input:          "tel:(890)123-4567",
+			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
+		},
+		{
+			name:           "Tel URI empty",
+			input:          "tel:",
+			expectedOutput: "",
+		},
 	}
 
 	for _, tt := range tests {
@@ -393,8 +432,29 @@ This should not be transformed`,
 	}
 }
 
+// preprocessTelURIs converts tel: URIs to phone numbers that can be processed by existing parsers
+func preprocessTelURIs(input string) string {
+	// Pattern to match tel: URIs
+	telPattern := regexp.MustCompile(`^tel:(.*)$`)
+	
+	matches := telPattern.FindStringSubmatch(strings.TrimSpace(input))
+	if matches != nil {
+		// Extract the phone number part after "tel:"
+		phoneNumber := matches[1]
+		
+		// Return the phone number without the tel: prefix
+		// This allows existing phone parsers to handle all supported formats
+		return phoneNumber
+	}
+	
+	return input
+}
+
 // processInput simulates the main application processing pipeline
 func processInput(t *testing.T, cfg *types.Config, input string) string {
+	// Preprocess tel: URIs (same as in cmd/root.go)
+	input = preprocessTelURIs(input)
+	
 	// Parse input
 	parsers := parser.GetParsers(cfg)
 	contexts := make([]*types.ParseContext, 0)

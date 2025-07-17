@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/atotto/clipboard"
@@ -65,6 +66,14 @@ func run() error {
 		return nil // No input, nothing to do
 	}
 
+	// Preprocess tel: URIs to phone numbers
+	input = preprocessTelURIs(input)
+	
+	// Check again if input is empty after preprocessing
+	if input == "" {
+		return nil // No input after preprocessing
+	}
+
 	// Parse input
 	parsers := parser.GetParsers(cfg)
 	contexts := make([]*types.ParseContext, 0)
@@ -118,4 +127,22 @@ func getInput() (string, error) {
 
 	// No stdin input, try clipboard
 	return clipboard.ReadAll()
+}
+
+// preprocessTelURIs converts tel: URIs to phone numbers that can be processed by existing parsers
+func preprocessTelURIs(input string) string {
+	// Pattern to match tel: URIs
+	telPattern := regexp.MustCompile(`^tel:(.*)$`)
+	
+	matches := telPattern.FindStringSubmatch(strings.TrimSpace(input))
+	if matches != nil {
+		// Extract the phone number part after "tel:"
+		phoneNumber := matches[1]
+		
+		// Return the phone number without the tel: prefix
+		// This allows existing phone parsers to handle all supported formats
+		return phoneNumber
+	}
+	
+	return input
 }
