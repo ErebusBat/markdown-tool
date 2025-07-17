@@ -93,6 +93,36 @@ func TestURLWriter_WriteGitHubURL(t *testing.T) {
 			originalInput:  "https://github.com/someorg/somerepo/issues/42",
 			expectedOutput: "[someorg/somerepo#42](https://github.com/someorg/somerepo/issues/42)",
 		},
+		{
+			name: "GitHub Repository without mapping",
+			config: &types.Config{
+				GitHub: types.GitHubConfig{
+					Mappings: map[string]string{},
+				},
+			},
+			metadata: map[string]interface{}{
+				"org":  "pedropark99",
+				"repo": "zig-book",
+			},
+			originalInput:  "https://github.com/pedropark99/zig-book",
+			expectedOutput: "[pedropark99/zig-book](https://github.com/pedropark99/zig-book)",
+		},
+		{
+			name: "GitHub Repository with mapping",
+			config: &types.Config{
+				GitHub: types.GitHubConfig{
+					Mappings: map[string]string{
+						"companycam/company-cam-api": "CompanyCam/API",
+					},
+				},
+			},
+			metadata: map[string]interface{}{
+				"org":  "CompanyCam",
+				"repo": "Company-Cam-API",
+			},
+			originalInput:  "https://github.com/CompanyCam/Company-Cam-API",
+			expectedOutput: "[CompanyCam/API](https://github.com/CompanyCam/Company-Cam-API)",
+		},
 	}
 
 	for _, tt := range tests {

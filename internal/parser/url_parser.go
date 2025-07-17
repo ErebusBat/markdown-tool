@@ -85,19 +85,26 @@ func (p *URLParser) isNotionURL(u *url.URL) bool {
 }
 
 func (p *URLParser) parseGitHubURL(u *url.URL, ctx *types.ParseContext) {
-	// Extract org/repo and issue/PR number from GitHub URLs
-	// Path format: /org/repo/pull/123 or /org/repo/issues/123
+	// Extract org/repo and optionally issue/PR number from GitHub URLs
+	// Path formats: 
+	// - /org/repo (simple repository URL)
+	// - /org/repo/pull/123 or /org/repo/issues/123 (issue/PR URLs)
 	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
-	if len(parts) >= 4 {
+	if len(parts) >= 2 {
 		org := parts[0]
 		repo := parts[1]
-		issueType := parts[2] // "pull" or "issues"
-		number := parts[3]
-
+		
 		ctx.Metadata["org"] = org
 		ctx.Metadata["repo"] = repo
-		ctx.Metadata["type"] = issueType
-		ctx.Metadata["number"] = number
+		
+		// If there are 4+ parts, extract issue/PR information
+		if len(parts) >= 4 {
+			issueType := parts[2] // "pull" or "issues"
+			number := parts[3]
+			
+			ctx.Metadata["type"] = issueType
+			ctx.Metadata["number"] = number
+		}
 	}
 }
 

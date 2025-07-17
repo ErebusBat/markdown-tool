@@ -70,6 +70,15 @@ func TestURLParser_Parse_GitHub(t *testing.T) {
 			expectedRepo:   "Company-Cam-API",
 			expectedNumber: "15217",
 		},
+		{
+			name:           "GitHub Repository",
+			input:          "https://github.com/pedropark99/zig-book",
+			expectedType:   types.ContentTypeGitHubURL,
+			expectedConf:   90,
+			expectedOrg:    "pedropark99",
+			expectedRepo:   "zig-book",
+			expectedNumber: "",
+		},
 	}
 
 	for _, tt := range tests {
@@ -96,7 +105,12 @@ func TestURLParser_Parse_GitHub(t *testing.T) {
 				t.Errorf("Metadata[repo] = %v, want %v", repo, tt.expectedRepo)
 			}
 			if number := ctx.Metadata["number"]; number != tt.expectedNumber {
-				t.Errorf("Metadata[number] = %v, want %v", number, tt.expectedNumber)
+				// Handle case where number is nil (not set for repository URLs)
+				if tt.expectedNumber == "" && number == nil {
+					// This is expected for repository URLs without issue numbers
+				} else {
+					t.Errorf("Metadata[number] = %v, want %v", number, tt.expectedNumber)
+				}
 			}
 		})
 	}

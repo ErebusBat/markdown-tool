@@ -50,6 +50,16 @@ func TestEndToEndTransformation(t *testing.T) {
 			expectedOutput: "[CompanyCam/API#15217](https://github.com/CompanyCam/Company-Cam-API/issues/15217)",
 		},
 		{
+			name:           "GitHub Repository URL",
+			input:          "https://github.com/pedropark99/zig-book",
+			expectedOutput: "[pedropark99/zig-book](https://github.com/pedropark99/zig-book)",
+		},
+		{
+			name:           "GitHub Repository URL with mapping",
+			input:          "https://github.com/CompanyCam/Company-Cam-API",
+			expectedOutput: "[CompanyCam/API](https://github.com/CompanyCam/Company-Cam-API)",
+		},
+		{
 			name:           "JIRA Issue URL",
 			input:          "https://companycam.atlassian.net/browse/PLAT-192",
 			expectedOutput: "[PLAT-192](https://companycam.atlassian.net/browse/PLAT-192)",

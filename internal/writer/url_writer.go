@@ -63,7 +63,7 @@ func (w *URLWriter) writeGitHubURL(ctx *types.ParseContext) (string, error) {
 	repo, _ := ctx.Metadata["repo"].(string)
 	number, _ := ctx.Metadata["number"].(string)
 
-	if org == "" || repo == "" || number == "" {
+	if org == "" || repo == "" {
 		return w.writeGenericURL(ctx)
 	}
 
@@ -77,7 +77,15 @@ func (w *URLWriter) writeGitHubURL(ctx *types.ParseContext) (string, error) {
 		}
 	}
 
-	linkText := fmt.Sprintf("%s#%s", orgRepo, number)
+	// If there's an issue/PR number, format as org/repo#number
+	// Otherwise, format as org/repo for simple repository URLs
+	var linkText string
+	if number != "" {
+		linkText = fmt.Sprintf("%s#%s", orgRepo, number)
+	} else {
+		linkText = orgRepo
+	}
+	
 	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
 }
 
