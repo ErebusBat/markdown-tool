@@ -52,6 +52,9 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
         - For AI Chat URIs (containing `extensions/raycast/raycast-ai/ai-chat`):
             - Input: `raycast://extensions/raycast/raycast-ai/ai-chat?context=%7B%22id%22:%228926C709-D08B-4FFC-9FD8-7A0E5561156D%22%7D`
             - Output: `[Raycast AI](raycast://extensions/raycast/raycast-ai/ai-chat?context=%7B%22id%22:%228926C709-D08B-4FFC-9FD8-7A0E5561156D%22%7D)`
+        - For Note URIs (containing `extensions/raycast/raycast-notes/raycast-notes`):
+            - Input: `raycast://extensions/raycast/raycast-notes/raycast-notes?context=%7B%22id%22:%22C8411E30-ADD9-4BBA-BFA5-2B14AE3DB533%22%7D`
+            - Output: `[Raycast Note](raycast://extensions/raycast/raycast-notes/raycast-notes?context=%7B%22id%22:%22C8411E30-ADD9-4BBA-BFA5-2B14AE3DB533%22%7D)`
         - For other Raycast URIs:
             - Input: `raycast://extensions/other/extension`
             - Output: `[Raycast](raycast://extensions/other/extension)`
@@ -154,6 +157,7 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
 - [ ] JIRA comment URLs are converted to `[ISSUE-KEY comment](url)` format
 - [ ] Notion URLs extract page titles from URL slugs
 - [ ] Raycast AI Chat URIs (containing `extensions/raycast/raycast-ai/ai-chat`) are converted to `[Raycast AI](url)` format
+- [ ] Raycast Note URIs (containing `extensions/raycast/raycast-notes/raycast-notes`) are converted to `[Raycast Note](url)` format
 - [ ] Other Raycast URIs are converted to `[Raycast](url)` format
 - [ ] Organization/project name mappings from config are applied correctly
 

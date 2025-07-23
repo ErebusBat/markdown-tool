@@ -30,6 +30,12 @@ func (w *RaycastWriter) Write(ctx *types.ParseContext) (string, error) {
 		return ctx.OriginalInput, nil
 	}
 
+	// Check if it's a Note URI first
+	isNote, ok := ctx.Metadata["isNote"].(bool)
+	if !ok {
+		isNote = false
+	}
+
 	// Check if it's an AI Chat URI
 	isAIChat, ok := ctx.Metadata["isAIChat"].(bool)
 	if !ok {
@@ -37,7 +43,9 @@ func (w *RaycastWriter) Write(ctx *types.ParseContext) (string, error) {
 	}
 
 	linkText := "Raycast"
-	if isAIChat {
+	if isNote {
+		linkText = "Raycast Note"
+	} else if isAIChat {
 		linkText = "Raycast AI"
 	}
 

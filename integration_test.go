@@ -436,6 +436,11 @@ This should not be transformed`,
 			expectedOutput: "[Raycast AI](raycast://extensions/raycast/raycast-ai/ai-chat?context=%7B%22id%22:%228926C709-D08B-4FFC-9FD8-7A0E5561156D%22%7D)",
 		},
 		{
+			name:           "Raycast Note URI",
+			input:          "raycast://extensions/raycast/raycast-notes/raycast-notes?context=%7B%22id%22:%22C8411E30-ADD9-4BBA-BFA5-2B14AE3DB533%22%7D",
+			expectedOutput: "[Raycast Note](raycast://extensions/raycast/raycast-notes/raycast-notes?context=%7B%22id%22:%22C8411E30-ADD9-4BBA-BFA5-2B14AE3DB533%22%7D)",
+		},
+		{
 			name:           "Raycast generic extension URI",
 			input:          "raycast://extensions/other/extension",
 			expectedOutput: "[Raycast](raycast://extensions/other/extension)",

@@ -64,9 +64,22 @@ func TestRaycastWriter_Write(t *testing.T) {
 				DetectedType:  types.ContentTypeRaycastURI,
 				Metadata: map[string]interface{}{
 					"isAIChat": true,
+					"isNote":   false,
 				},
 			},
 			expectedOutput: "[Raycast AI](raycast://extensions/raycast/raycast-ai/ai-chat?context=%7B%22id%22:%228926C709-D08B-4FFC-9FD8-7A0E5561156D%22%7D)",
+		},
+		{
+			name: "Raycast Note URI",
+			ctx: &types.ParseContext{
+				OriginalInput: "raycast://extensions/raycast/raycast-notes/raycast-notes?context=%7B%22id%22:%22C8411E30-ADD9-4BBA-BFA5-2B14AE3DB533%22%7D",
+				DetectedType:  types.ContentTypeRaycastURI,
+				Metadata: map[string]interface{}{
+					"isAIChat": false,
+					"isNote":   true,
+				},
+			},
+			expectedOutput: "[Raycast Note](raycast://extensions/raycast/raycast-notes/raycast-notes?context=%7B%22id%22:%22C8411E30-ADD9-4BBA-BFA5-2B14AE3DB533%22%7D)",
 		},
 		{
 			name: "Raycast generic URI",
@@ -75,6 +88,7 @@ func TestRaycastWriter_Write(t *testing.T) {
 				DetectedType:  types.ContentTypeRaycastURI,
 				Metadata: map[string]interface{}{
 					"isAIChat": false,
+					"isNote":   false,
 				},
 			},
 			expectedOutput: "[Raycast](raycast://extensions/other/extension)",
@@ -86,6 +100,7 @@ func TestRaycastWriter_Write(t *testing.T) {
 				DetectedType:  types.ContentTypeRaycastURI,
 				Metadata: map[string]interface{}{
 					"isAIChat": false,
+					"isNote":   false,
 				},
 			},
 			expectedOutput: "[Raycast](raycast://settings)",

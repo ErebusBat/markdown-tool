@@ -43,5 +43,9 @@ func (p *RaycastParser) Parse(input string) (*types.ParseContext, error) {
 	isAIChat := strings.Contains(input, "extensions/raycast/raycast-ai/ai-chat")
 	ctx.Metadata["isAIChat"] = isAIChat
 
+	// Check if it's a Note URI
+	isNote := strings.Contains(input, "extensions/raycast/raycast-notes/raycast-notes")
+	ctx.Metadata["isNote"] = isNote
+
 	return ctx, nil
 }

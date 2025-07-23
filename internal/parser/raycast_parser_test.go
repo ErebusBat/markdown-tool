@@ -13,6 +13,7 @@ func TestRaycastParser_CanHandle(t *testing.T) {
 		expected bool
 	}{
 		{"Raycast AI Chat URI", "raycast://extensions/raycast/raycast-ai/ai-chat?context=%7B%22id%22:%228926C709-D08B-4FFC-9FD8-7A0E5561156D%22%7D", true},
+		{"Raycast Note URI", "raycast://extensions/raycast/raycast-notes/raycast-notes?context=%7B%22id%22:%22C8411E30-ADD9-4BBA-BFA5-2B14AE3DB533%22%7D", true},
 		{"Raycast generic extension URI", "raycast://extensions/other/extension", true},
 		{"Raycast simple URI", "raycast://settings", true},
 		{"Raycast with path", "raycast://extensions/raycast/window-management/center", true},
@@ -47,6 +48,7 @@ func TestRaycastParser_Parse(t *testing.T) {
 		expectedType   types.ContentType
 		expectedConf   int
 		expectedAIChat bool
+		expectedNote   bool
 		shouldParse    bool
 	}{
 		{
@@ -55,6 +57,7 @@ func TestRaycastParser_Parse(t *testing.T) {
 			expectedType:   types.ContentTypeRaycastURI,
 			expectedConf:   85,
 			expectedAIChat: true,
+			expectedNote:   false,
 			shouldParse:    true,
 		},
 		{
@@ -63,6 +66,25 @@ func TestRaycastParser_Parse(t *testing.T) {
 			expectedType:   types.ContentTypeRaycastURI,
 			expectedConf:   85,
 			expectedAIChat: true,
+			expectedNote:   false,
+			shouldParse:    true,
+		},
+		{
+			name:           "Raycast Note URI",
+			input:          "raycast://extensions/raycast/raycast-notes/raycast-notes?context=%7B%22id%22:%22C8411E30-ADD9-4BBA-BFA5-2B14AE3DB533%22%7D",
+			expectedType:   types.ContentTypeRaycastURI,
+			expectedConf:   85,
+			expectedAIChat: false,
+			expectedNote:   true,
+			shouldParse:    true,
+		},
+		{
+			name:           "Raycast Note URI without query",
+			input:          "raycast://extensions/raycast/raycast-notes/raycast-notes",
+			expectedType:   types.ContentTypeRaycastURI,
+			expectedConf:   85,
+			expectedAIChat: false,
+			expectedNote:   true,
 			shouldParse:    true,
 		},
 		{
@@ -71,6 +93,7 @@ func TestRaycastParser_Parse(t *testing.T) {
 			expectedType:   types.ContentTypeRaycastURI,
 			expectedConf:   85,
 			expectedAIChat: false,
+			expectedNote:   false,
 			shouldParse:    true,
 		},
 		{
@@ -79,6 +102,7 @@ func TestRaycastParser_Parse(t *testing.T) {
 			expectedType:   types.ContentTypeRaycastURI,
 			expectedConf:   85,
 			expectedAIChat: false,
+			expectedNote:   false,
 			shouldParse:    true,
 		},
 		{
@@ -128,6 +152,13 @@ func TestRaycastParser_Parse(t *testing.T) {
 				t.Errorf("Parse(%q).Metadata[\"isAIChat\"] not found or not bool", tt.input)
 			} else if isAIChat != tt.expectedAIChat {
 				t.Errorf("Parse(%q).Metadata[\"isAIChat\"] = %v, want %v", tt.input, isAIChat, tt.expectedAIChat)
+			}
+
+			isNote, ok := ctx.Metadata["isNote"].(bool)
+			if !ok {
+				t.Errorf("Parse(%q).Metadata[\"isNote\"] not found or not bool", tt.input)
+			} else if isNote != tt.expectedNote {
+				t.Errorf("Parse(%q).Metadata[\"isNote\"] = %v, want %v", tt.input, isNote, tt.expectedNote)
 			}
 		})
 	}
