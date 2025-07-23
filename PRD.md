@@ -48,6 +48,13 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
     - Detect Notion Links and extract the page title as the comment:
         - Input: `https://www.notion.so/companycam/VS-Code-Setup-for-Standard-rb-RubyLSP-654a6b070ae74ac3ad400c6d571507c0#1c0d42d77c0b80268626fa64eb6ebdbe`
         - Output: `[VS Code Setup for Standard rb RubyLSP](https://www.notion.so/companycam/VS-Code-Setup-for-Standard-rb-RubyLSP-654a6b070ae74ac3ad400c6d571507c0#1c0d42d77c0b80268626fa64eb6ebdbe)`
+    - Detect Raycast URIs and transform them into markdown links:
+        - For AI Chat URIs (containing `extensions/raycast/raycast-ai/ai-chat`):
+            - Input: `raycast://extensions/raycast/raycast-ai/ai-chat?context=%7B%22id%22:%228926C709-D08B-4FFC-9FD8-7A0E5561156D%22%7D`
+            - Output: `[Raycast AI](raycast://extensions/raycast/raycast-ai/ai-chat?context=%7B%22id%22:%228926C709-D08B-4FFC-9FD8-7A0E5561156D%22%7D)`
+        - For other Raycast URIs:
+            - Input: `raycast://extensions/other/extension`
+            - Output: `[Raycast](raycast://extensions/other/extension)`
 
 3. **Detect JIRA Issue Keys**
     - Should detect a JIRA key and transform
@@ -146,6 +153,8 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
 - [ ] JIRA issue URLs are converted to `[ISSUE-KEY](url)` format
 - [ ] JIRA comment URLs are converted to `[ISSUE-KEY comment](url)` format
 - [ ] Notion URLs extract page titles from URL slugs
+- [ ] Raycast AI Chat URIs (containing `extensions/raycast/raycast-ai/ai-chat`) are converted to `[Raycast AI](url)` format
+- [ ] Other Raycast URIs are converted to `[Raycast](url)` format
 - [ ] Organization/project name mappings from config are applied correctly
 
 ### JIRA Key Detection

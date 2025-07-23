@@ -430,6 +430,26 @@ This should not be transformed`,
 			input:          "tel:",
 			expectedOutput: "",
 		},
+		{
+			name:           "Raycast AI Chat URI",
+			input:          "raycast://extensions/raycast/raycast-ai/ai-chat?context=%7B%22id%22:%228926C709-D08B-4FFC-9FD8-7A0E5561156D%22%7D",
+			expectedOutput: "[Raycast AI](raycast://extensions/raycast/raycast-ai/ai-chat?context=%7B%22id%22:%228926C709-D08B-4FFC-9FD8-7A0E5561156D%22%7D)",
+		},
+		{
+			name:           "Raycast generic extension URI",
+			input:          "raycast://extensions/other/extension",
+			expectedOutput: "[Raycast](raycast://extensions/other/extension)",
+		},
+		{
+			name:           "Raycast settings URI",
+			input:          "raycast://settings",
+			expectedOutput: "[Raycast](raycast://settings)",
+		},
+		{
+			name:           "Raycast window management URI",
+			input:          "raycast://extensions/raycast/window-management/center",
+			expectedOutput: "[Raycast](raycast://extensions/raycast/window-management/center)",
+		},
 	}
 
 	for _, tt := range tests {

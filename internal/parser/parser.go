@@ -20,5 +20,6 @@ func GetParsers(cfg *types.Config) []types.Parser {
 		NewJIRAKeyWithDescriptionParser(cfg), // Higher priority than simple JIRA key
 		NewJIRAKeyParser(cfg),
 		NewPhoneParser(cfg),
+		NewRaycastParser(cfg),
 	}
 }

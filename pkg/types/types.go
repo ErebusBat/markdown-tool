@@ -24,6 +24,7 @@ const (
 	ContentTypePhone7Digit
 	ContentTypePhone10Digit
 	ContentTypePhone11Digit
+	ContentTypeRaycastURI
 )
 
 // Parser interface for content detection and parsing
