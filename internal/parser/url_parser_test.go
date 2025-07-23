@@ -51,6 +51,7 @@ func TestURLParser_Parse_GitHub(t *testing.T) {
 		expectedOrg    string
 		expectedRepo   string
 		expectedNumber string
+		expectedIssueType string
 	}{
 		{
 			name:           "GitHub Pull Request",
@@ -60,6 +61,7 @@ func TestURLParser_Parse_GitHub(t *testing.T) {
 			expectedOrg:    "CompanyCam",
 			expectedRepo:   "Company-Cam-API",
 			expectedNumber: "15217",
+			expectedIssueType: "pull",
 		},
 		{
 			name:           "GitHub Issue",
@@ -69,6 +71,7 @@ func TestURLParser_Parse_GitHub(t *testing.T) {
 			expectedOrg:    "CompanyCam",
 			expectedRepo:   "Company-Cam-API",
 			expectedNumber: "15217",
+			expectedIssueType: "issues",
 		},
 		{
 			name:           "GitHub Repository",
@@ -78,6 +81,27 @@ func TestURLParser_Parse_GitHub(t *testing.T) {
 			expectedOrg:    "pedropark99",
 			expectedRepo:   "zig-book",
 			expectedNumber: "",
+			expectedIssueType: "",
+		},
+		{
+			name:           "GitHub Commit Long Hash",
+			input:          "https://github.com/ErebusBat/markdown-tool/commit/aa062a602a02d33f4a6e7880809ac3609fe1417b",
+			expectedType:   types.ContentTypeGitHubURL,
+			expectedConf:   90,
+			expectedOrg:    "ErebusBat",
+			expectedRepo:   "markdown-tool",
+			expectedNumber: "aa062a602a02d33f4a6e7880809ac3609fe1417b",
+			expectedIssueType: "commit",
+		},
+		{
+			name:           "GitHub Commit Short Hash",
+			input:          "https://github.com/CompanyCam/Company-Cam-API/commit/abc123",
+			expectedType:   types.ContentTypeGitHubURL,
+			expectedConf:   90,
+			expectedOrg:    "CompanyCam",
+			expectedRepo:   "Company-Cam-API",
+			expectedNumber: "abc123",
+			expectedIssueType: "commit",
 		},
 	}
 
@@ -110,6 +134,14 @@ func TestURLParser_Parse_GitHub(t *testing.T) {
 					// This is expected for repository URLs without issue numbers
 				} else {
 					t.Errorf("Metadata[number] = %v, want %v", number, tt.expectedNumber)
+				}
+			}
+			if issueType := ctx.Metadata["type"]; issueType != tt.expectedIssueType {
+				// Handle case where type is nil (not set for repository URLs)
+				if tt.expectedIssueType == "" && issueType == nil {
+					// This is expected for repository URLs without type
+				} else {
+					t.Errorf("Metadata[type] = %v, want %v", issueType, tt.expectedIssueType)
 				}
 			}
 		})

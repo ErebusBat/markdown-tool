@@ -35,10 +35,14 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
        - Input: `http://ww3.domain.tld/path/to/document?query=value#anchor`
        - Output: `[domain.tld](http://ww3.domain.tld/path/to/document?query=value#anchor)`
     - Detect GitHub links and use the org/repo#issue number as the description:
-        - Inputs:
-            - `https://github.com/CompanyCam/Company-Cam-API/pull/15217`
-            - `https://github.com/CompanyCam/Company-Cam-API/issues/15217`
-        - Output: `[CompanyCam/Company-Cam-API#15217](https://github.com/CompanyCam/Company-Cam-API/pull/15217)`
+        - For Pull Requests and Issues:
+            - Inputs:
+                - `https://github.com/CompanyCam/Company-Cam-API/pull/15217`
+                - `https://github.com/CompanyCam/Company-Cam-API/issues/15217`
+            - Output: `[CompanyCam/Company-Cam-API#15217](https://github.com/CompanyCam/Company-Cam-API/pull/15217)`
+        - For Commits (truncate hash to 7 characters in link text):
+            - Input: `https://github.com/ErebusBat/markdown-tool/commit/aa062a602a02d33f4a6e7880809ac3609fe1417b`
+            - Output: `[ErebusBat/markdown-tool#aa062a6](https://github.com/ErebusBat/markdown-tool/commit/aa062a602a02d33f4a6e7880809ac3609fe1417b)`
     - Detect Jira Issue Links and use the issue number as the description:
         - Input: `https://companycam.atlassian.net/browse/PLAT-192`
         - Output: `[PLAT-192](https://companycam.atlassian.net/browse/PLAT-192)`
@@ -153,6 +157,7 @@ Users frequently need to convert plain text, code snippets, URLs, and other cont
 ### URL Processing
 - [ ] Generic URLs are converted to `[domain.tld](full-url)` format
 - [ ] GitHub PR/issue URLs are converted to `[org/repo#number](url)` format
+- [ ] GitHub commit URLs are converted to `[org/repo#hash7chars](url)` format with truncated hash
 - [ ] JIRA issue URLs are converted to `[ISSUE-KEY](url)` format
 - [ ] JIRA comment URLs are converted to `[ISSUE-KEY comment](url)` format
 - [ ] Notion URLs extract page titles from URL slugs

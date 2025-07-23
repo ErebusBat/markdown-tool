@@ -50,6 +50,16 @@ func TestEndToEndTransformation(t *testing.T) {
 			expectedOutput: "[CompanyCam/API#15217](https://github.com/CompanyCam/Company-Cam-API/issues/15217)",
 		},
 		{
+			name:           "GitHub Commit Long Hash URL",
+			input:          "https://github.com/ErebusBat/markdown-tool/commit/aa062a602a02d33f4a6e7880809ac3609fe1417b",
+			expectedOutput: "[ErebusBat/markdown-tool#aa062a6](https://github.com/ErebusBat/markdown-tool/commit/aa062a602a02d33f4a6e7880809ac3609fe1417b)",
+		},
+		{
+			name:           "GitHub Commit Short Hash URL",
+			input:          "https://github.com/CompanyCam/Company-Cam-API/commit/abc123",
+			expectedOutput: "[CompanyCam/API#abc123](https://github.com/CompanyCam/Company-Cam-API/commit/abc123)",
+		},
+		{
 			name:           "GitHub Repository URL",
 			input:          "https://github.com/pedropark99/zig-book",
 			expectedOutput: "[pedropark99/zig-book](https://github.com/pedropark99/zig-book)",

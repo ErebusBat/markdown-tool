@@ -123,6 +123,56 @@ func TestURLWriter_WriteGitHubURL(t *testing.T) {
 			originalInput:  "https://github.com/CompanyCam/Company-Cam-API",
 			expectedOutput: "[CompanyCam/API](https://github.com/CompanyCam/Company-Cam-API)",
 		},
+		{
+			name: "GitHub Commit Long Hash",
+			config: &types.Config{
+				GitHub: types.GitHubConfig{
+					Mappings: map[string]string{},
+				},
+			},
+			metadata: map[string]interface{}{
+				"org":    "ErebusBat",
+				"repo":   "markdown-tool",
+				"type":   "commit",
+				"number": "aa062a602a02d33f4a6e7880809ac3609fe1417b",
+			},
+			originalInput:  "https://github.com/ErebusBat/markdown-tool/commit/aa062a602a02d33f4a6e7880809ac3609fe1417b",
+			expectedOutput: "[ErebusBat/markdown-tool#aa062a6](https://github.com/ErebusBat/markdown-tool/commit/aa062a602a02d33f4a6e7880809ac3609fe1417b)",
+		},
+		{
+			name: "GitHub Commit Short Hash",
+			config: &types.Config{
+				GitHub: types.GitHubConfig{
+					Mappings: map[string]string{},
+				},
+			},
+			metadata: map[string]interface{}{
+				"org":    "CompanyCam",
+				"repo":   "Company-Cam-API",
+				"type":   "commit",
+				"number": "abc123",
+			},
+			originalInput:  "https://github.com/CompanyCam/Company-Cam-API/commit/abc123",
+			expectedOutput: "[CompanyCam/Company-Cam-API#abc123](https://github.com/CompanyCam/Company-Cam-API/commit/abc123)",
+		},
+		{
+			name: "GitHub Commit with mapping",
+			config: &types.Config{
+				GitHub: types.GitHubConfig{
+					Mappings: map[string]string{
+						"companycam/company-cam-api": "CompanyCam/API",
+					},
+				},
+			},
+			metadata: map[string]interface{}{
+				"org":    "CompanyCam",
+				"repo":   "Company-Cam-API",
+				"type":   "commit",
+				"number": "def456789abcdef123456789abcdef12345",
+			},
+			originalInput:  "https://github.com/CompanyCam/Company-Cam-API/commit/def456789abcdef123456789abcdef12345",
+			expectedOutput: "[CompanyCam/API#def4567](https://github.com/CompanyCam/Company-Cam-API/commit/def456789abcdef123456789abcdef12345)",
+		},
 	}
 
 	for _, tt := range tests {

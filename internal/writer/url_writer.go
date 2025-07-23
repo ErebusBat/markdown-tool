@@ -77,11 +77,18 @@ func (w *URLWriter) writeGitHubURL(ctx *types.ParseContext) (string, error) {
 		}
 	}
 
-	// If there's an issue/PR number, format as org/repo#number
+	// If there's an issue/PR/commit number, format as org/repo#number
+	// For commits, truncate hash to 7 characters in link text
 	// Otherwise, format as org/repo for simple repository URLs
 	var linkText string
 	if number != "" {
-		linkText = fmt.Sprintf("%s#%s", orgRepo, number)
+		issueType, _ := ctx.Metadata["type"].(string)
+		if issueType == "commit" && len(number) > 7 {
+			// Truncate commit hash to 7 characters for display
+			linkText = fmt.Sprintf("%s#%s", orgRepo, number[:7])
+		} else {
+			linkText = fmt.Sprintf("%s#%s", orgRepo, number)
+		}
 	} else {
 		linkText = orgRepo
 	}
