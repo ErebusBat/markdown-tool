@@ -52,6 +52,29 @@ test-repo
 Some issue title here #42`,
 			expected: true,
 		},
+		{
+			name: "GitHub issue with no space before hash",
+			input: `dotswipely
+weekly_digest_email_pipeline
+Repository navigation
+Code
+Issues
+2
+ (2)
+Pull requests
+1
+ (1)
+Actions
+Projects
+Wiki
+Security
+14
+ (14)
+Insights
+Settings
+Lettercarrier6 My long Descr#285`,
+			expected: true,
+		},
 		// New test cases for simple issue patterns
 		{
 			name:     "Simple issue title only",
@@ -287,6 +310,33 @@ plat_188 adds blinc ddagent file #15407`,
 			expectedTitle:  "plat_188 adds blinc ddagent file",
 			expectedNumber: "15407",
 		},
+		{
+			name: "GitHub issue with no space before hash",
+			input: `dotswipely
+weekly_digest_email_pipeline
+Repository navigation
+Code
+Issues
+2
+ (2)
+Pull requests
+1
+ (1)
+Actions
+Projects
+Wiki
+Security
+14
+ (14)
+Insights
+Settings
+Lettercarrier6 My long Descr#285`,
+			expectSuccess:  true,
+			expectedOrg:    "dotswipely",
+			expectedRepo:   "weekly_digest_email_pipeline",
+			expectedTitle:  "Lettercarrier6 My long Descr",
+			expectedNumber: "285",
+		},
 	}
 
 	for _, tt := range tests {
@@ -375,6 +425,7 @@ func TestGitHubLongParser_HelperFunctions(t *testing.T) {
 		// hasIssueTitleWithNumber tests
 		{"Valid issue title", "hasIssueTitleWithNumber", "Fix the bug #123", true},
 		{"Valid complex title", "hasIssueTitleWithNumber", "A specific Logger.error call doesn't log #6549", true},
+		{"Valid issue title no space before hash", "hasIssueTitleWithNumber", "Lettercarrier6 My long Descr#285", true},
 		{"Invalid - no number", "hasIssueTitleWithNumber", "Just some text", false},
 		{"Invalid - number not at end", "hasIssueTitleWithNumber", "Issue #123 with more text", false},
 		{"Invalid - no hash", "hasIssueTitleWithNumber", "Issue 123", false},
@@ -448,6 +499,12 @@ func TestExtractIssueTitleAndNumber(t *testing.T) {
 			input:          "  Fix authentication   #999  ",
 			expectedTitle:  "Fix authentication",
 			expectedNumber: "999",
+		},
+		{
+			name:           "Issue with no space before hash",
+			input:          "Lettercarrier6 My long Descr#285",
+			expectedTitle:  "Lettercarrier6 My long Descr",
+			expectedNumber: "285",
 		},
 		{
 			name:           "Invalid format",

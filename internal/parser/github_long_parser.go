@@ -227,15 +227,15 @@ func isValidRepoName(s string) bool {
 
 // hasIssueTitleWithNumber checks if a line contains an issue title ending with #number
 func hasIssueTitleWithNumber(s string) bool {
-	// Look for text ending with #number pattern (allowing multiple spaces)
-	re := regexp.MustCompile(`^.+\s+#\d+\s*$`)
+	// Look for text ending with #number pattern (allowing zero or more spaces before #)
+	re := regexp.MustCompile(`^.+\s*#\d+\s*$`)
 	return re.MatchString(strings.TrimSpace(s))
 }
 
 // extractIssueTitleAndNumber extracts the title and number from an issue title line
 func extractIssueTitleAndNumber(s string) (title, number string) {
-	// Match everything before the last space followed by #number
-	re := regexp.MustCompile(`^(.+)\s+#(\d+)\s*$`)
+	// Match everything before #number (allowing zero or more spaces before #)
+	re := regexp.MustCompile(`^(.+?)\s*#(\d+)\s*$`)
 	matches := re.FindStringSubmatch(strings.TrimSpace(s))
 	if len(matches) == 3 {
 		return strings.TrimSpace(matches[1]), matches[2]
