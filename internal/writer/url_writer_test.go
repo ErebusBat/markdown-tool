@@ -19,6 +19,7 @@ func TestURLWriter_Vote(t *testing.T) {
 		{"GitHub Long", types.ContentTypeGitHubLong, 95},
 		{"JIRA URL", types.ContentTypeJIRAURL, 90},
 		{"JIRA Comment", types.ContentTypeJIRAComment, 95},
+		{"Jenkins URL", types.ContentTypeJenkinsURL, 90},
 		{"Notion URL", types.ContentTypeNotionURL, 85},
 		{"Generic URL", types.ContentTypeURL, 50},
 		{"JIRA Key", types.ContentTypeJIRAKey, 0},
@@ -233,6 +234,65 @@ func TestURLWriter_WriteJIRAURL(t *testing.T) {
 			ctx := &types.ParseContext{
 				OriginalInput: tt.originalInput,
 				DetectedType:  tt.contentType,
+				Metadata:      tt.metadata,
+			}
+
+			output, err := writer.Write(ctx)
+			if err != nil {
+				t.Fatalf("Write() error = %v", err)
+			}
+
+			if output != tt.expectedOutput {
+				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
+			}
+		})
+	}
+}
+
+func TestURLWriter_WriteJenkinsURL(t *testing.T) {
+	cfg := &types.Config{}
+	writer := NewURLWriter(cfg)
+
+	tests := []struct {
+		name           string
+		originalInput  string
+		metadata       map[string]interface{}
+		expectedOutput string
+	}{
+		{
+			name:          "Jenkins build URL",
+			originalInput: "https://jenkins.internal.upserve.com/job/app.swipely/114/",
+			metadata: map[string]interface{}{
+				"job_name":     "app.swipely",
+				"build_number": "114",
+			},
+			expectedOutput: "[jenkins/app.swipely#114](https://jenkins.internal.upserve.com/job/app.swipely/114/)",
+		},
+		{
+			name:          "Jenkins build URL with console text",
+			originalInput: "https://jenkins.internal.upserve.com/job/app.swipely/114/consoleText",
+			metadata: map[string]interface{}{
+				"job_name":     "app.swipely",
+				"build_number": "114",
+			},
+			expectedOutput: "[jenkins/app.swipely#114](https://jenkins.internal.upserve.com/job/app.swipely/114/consoleText)",
+		},
+		{
+			name:          "Jenkins build URL with artifact path",
+			originalInput: "https://jenkins.internal.upserve.com/job/my-project/42/artifact/build.log",
+			metadata: map[string]interface{}{
+				"job_name":     "my-project",
+				"build_number": "42",
+			},
+			expectedOutput: "[jenkins/my-project#42](https://jenkins.internal.upserve.com/job/my-project/42/artifact/build.log)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := &types.ParseContext{
+				OriginalInput: tt.originalInput,
+				DetectedType:  types.ContentTypeJenkinsURL,
 				Metadata:      tt.metadata,
 			}
 

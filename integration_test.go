@@ -26,6 +26,9 @@ func TestEndToEndTransformation(t *testing.T) {
 			Domain:   "https://companycam.atlassian.net",
 			Projects: []string{"PLAT", "SPEED"},
 		},
+		Jenkins: types.JenkinsConfig{
+			Domain: "https://jenkins.internal.upserve.com",
+		},
 		URL: types.URLConfig{
 			DomainMappings: map[string]string{
 				"companycam_slack_com": "slack",
@@ -78,6 +81,16 @@ func TestEndToEndTransformation(t *testing.T) {
 			name:           "JIRA Comment URL",
 			input:          "https://companycam.atlassian.net/browse/PLAT-192?focusedCommentId=20266",
 			expectedOutput: "[PLAT-192 comment](https://companycam.atlassian.net/browse/PLAT-192?focusedCommentId=20266)",
+		},
+		{
+			name:           "Jenkins build URL",
+			input:          "https://jenkins.internal.upserve.com/job/app.swipely/114/",
+			expectedOutput: "[jenkins/app.swipely#114](https://jenkins.internal.upserve.com/job/app.swipely/114/)",
+		},
+		{
+			name:           "Jenkins build URL with console text",
+			input:          "https://jenkins.internal.upserve.com/job/app.swipely/114/consoleText",
+			expectedOutput: "[jenkins/app.swipely#114](https://jenkins.internal.upserve.com/job/app.swipely/114/consoleText)",
 		},
 		{
 			name:           "Notion URL",

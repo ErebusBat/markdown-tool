@@ -51,6 +51,10 @@ func (p *URLParser) Parse(input string) (*types.ParseContext, error) {
 			ctx.Confidence = 90
 		}
 		p.parseJIRAURL(u, ctx)
+	case p.isJenkinsURL(u):
+		ctx.DetectedType = types.ContentTypeJenkinsURL
+		ctx.Confidence = 90
+		p.parseJenkinsURL(u, ctx)
 	case p.isNotionURL(u):
 		ctx.DetectedType = types.ContentTypeNotionURL
 		ctx.Confidence = 85
@@ -78,6 +82,14 @@ func (p *URLParser) isJIRAURL(u *url.URL) bool {
 
 func (p *URLParser) isJIRACommentURL(u *url.URL) bool {
 	return p.isJIRAURL(u) && u.Query().Get("focusedCommentId") != ""
+}
+
+func (p *URLParser) isJenkinsURL(u *url.URL) bool {
+	if p.config.Jenkins.Domain == "" {
+		return false
+	}
+	jenkinsURL, _ := url.Parse(p.config.Jenkins.Domain)
+	return u.Host == jenkinsURL.Host
 }
 
 func (p *URLParser) isNotionURL(u *url.URL) bool {
@@ -120,6 +132,18 @@ func (p *URLParser) parseJIRAURL(u *url.URL, ctx *types.ParseContext) {
 	// Check if it's a comment URL
 	if commentId := u.Query().Get("focusedCommentId"); commentId != "" {
 		ctx.Metadata["comment_id"] = commentId
+	}
+}
+
+func (p *URLParser) parseJenkinsURL(u *url.URL, ctx *types.ParseContext) {
+	// Extract job name and build number from Jenkins URLs
+	// Path format: /job/{job-name}/{build-number}/[optional-path]
+	// Example: /job/app.swipely/114/consoleText
+	re := regexp.MustCompile(`^/job/([^/]+)/(\d+)`)
+	matches := re.FindStringSubmatch(u.Path)
+	if len(matches) > 2 {
+		ctx.Metadata["job_name"] = matches[1]
+		ctx.Metadata["build_number"] = matches[2]
 	}
 }
 

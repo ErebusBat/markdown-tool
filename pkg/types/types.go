@@ -19,6 +19,7 @@ const (
 	ContentTypeJIRAURL
 	ContentTypeJIRAComment
 	ContentTypeNotionURL
+	ContentTypeJenkinsURL
 	ContentTypeJIRAKey
 	ContentTypeJIRAKeyWithDescription
 	ContentTypePhone7Digit
@@ -42,9 +43,10 @@ type Writer interface {
 
 // Config represents the application configuration
 type Config struct {
-	GitHub GitHubConfig `yaml:"github" mapstructure:"github"`
-	JIRA   JIRAConfig   `yaml:"jira" mapstructure:"jira"`
-	URL    URLConfig    `yaml:"url" mapstructure:"url"`
+	GitHub  GitHubConfig  `yaml:"github" mapstructure:"github"`
+	JIRA    JIRAConfig    `yaml:"jira" mapstructure:"jira"`
+	Jenkins JenkinsConfig `yaml:"jenkins" mapstructure:"jenkins"`
+	URL     URLConfig     `yaml:"url" mapstructure:"url"`
 }
 
 // GitHubConfig holds GitHub-specific configuration
@@ -58,6 +60,11 @@ type GitHubConfig struct {
 type JIRAConfig struct {
 	Domain   string   `yaml:"domain" mapstructure:"domain"`
 	Projects []string `yaml:"projects" mapstructure:"projects"`
+}
+
+// JenkinsConfig holds Jenkins-specific configuration
+type JenkinsConfig struct {
+	Domain string `yaml:"domain" mapstructure:"domain"`
 }
 
 // URLConfig holds URL-specific configuration

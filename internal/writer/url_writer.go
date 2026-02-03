@@ -30,6 +30,8 @@ func (w *URLWriter) Vote(ctx *types.ParseContext) int {
 		return 90
 	case types.ContentTypeJIRAComment:
 		return 95
+	case types.ContentTypeJenkinsURL:
+		return 90
 	case types.ContentTypeNotionURL:
 		return 85
 	case types.ContentTypeURL:
@@ -49,6 +51,8 @@ func (w *URLWriter) Write(ctx *types.ParseContext) (string, error) {
 		return w.writeJIRAURL(ctx)
 	case types.ContentTypeJIRAComment:
 		return w.writeJIRACommentURL(ctx)
+	case types.ContentTypeJenkinsURL:
+		return w.writeJenkinsURL(ctx)
 	case types.ContentTypeNotionURL:
 		return w.writeNotionURL(ctx)
 	case types.ContentTypeURL:
@@ -141,6 +145,19 @@ func (w *URLWriter) writeJIRACommentURL(ctx *types.ParseContext) (string, error)
 	}
 
 	return fmt.Sprintf("[%s comment](%s)", issueKey, ctx.OriginalInput), nil
+}
+
+func (w *URLWriter) writeJenkinsURL(ctx *types.ParseContext) (string, error) {
+	jobName, _ := ctx.Metadata["job_name"].(string)
+	buildNumber, _ := ctx.Metadata["build_number"].(string)
+
+	if jobName == "" || buildNumber == "" {
+		return w.writeGenericURL(ctx)
+	}
+
+	// Format: jenkins/{job_name}#{build_number}
+	linkText := fmt.Sprintf("jenkins/%s#%s", jobName, buildNumber)
+	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
 }
 
 func (w *URLWriter) writeNotionURL(ctx *types.ParseContext) (string, error) {

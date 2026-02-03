@@ -206,6 +206,69 @@ func TestURLParser_Parse_JIRA(t *testing.T) {
 	}
 }
 
+func TestURLParser_Parse_Jenkins(t *testing.T) {
+	cfg := &types.Config{
+		Jenkins: types.JenkinsConfig{
+			Domain: "https://jenkins.internal.upserve.com",
+		},
+	}
+	parser := NewURLParser(cfg)
+
+	tests := []struct {
+		name                string
+		input               string
+		expectedType        types.ContentType
+		expectedJobName     string
+		expectedBuildNumber string
+	}{
+		{
+			name:                "Jenkins build URL",
+			input:               "https://jenkins.internal.upserve.com/job/app.swipely/114/",
+			expectedType:        types.ContentTypeJenkinsURL,
+			expectedJobName:     "app.swipely",
+			expectedBuildNumber: "114",
+		},
+		{
+			name:                "Jenkins build URL with console text",
+			input:               "https://jenkins.internal.upserve.com/job/app.swipely/114/consoleText",
+			expectedType:        types.ContentTypeJenkinsURL,
+			expectedJobName:     "app.swipely",
+			expectedBuildNumber: "114",
+		},
+		{
+			name:                "Jenkins build URL with additional path",
+			input:               "https://jenkins.internal.upserve.com/job/my-project/42/artifact/build.log",
+			expectedType:        types.ContentTypeJenkinsURL,
+			expectedJobName:     "my-project",
+			expectedBuildNumber: "42",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, err := parser.Parse(tt.input)
+			if err != nil {
+				t.Fatalf("Parse() error = %v", err)
+			}
+			if ctx == nil {
+				t.Fatal("Parse() returned nil context")
+			}
+
+			if ctx.DetectedType != tt.expectedType {
+				t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, tt.expectedType)
+			}
+
+			if jobName := ctx.Metadata["job_name"]; jobName != tt.expectedJobName {
+				t.Errorf("Metadata[job_name] = %v, want %v", jobName, tt.expectedJobName)
+			}
+
+			if buildNumber := ctx.Metadata["build_number"]; buildNumber != tt.expectedBuildNumber {
+				t.Errorf("Metadata[build_number] = %v, want %v", buildNumber, tt.expectedBuildNumber)
+			}
+		})
+	}
+}
+
 func TestURLParser_Parse_Notion(t *testing.T) {
 	cfg := &types.Config{}
 	parser := NewURLParser(cfg)
