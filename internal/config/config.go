@@ -71,6 +71,9 @@ jira:
     - "PLAT"
     - "SPEED"
 
+jenkins:
+  domain: "https://jenkins.internal.upserve.com"
+
 url:
   domain_mappings:
     companycam_slack_com: "slack"
