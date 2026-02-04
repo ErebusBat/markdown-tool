@@ -1,6 +1,10 @@
 package parser
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
@@ -55,6 +59,10 @@ func (p *URLParser) Parse(input string) (*types.ParseContext, error) {
 		ctx.DetectedType = types.ContentTypeJenkinsURL
 		ctx.Confidence = 90
 		p.parseJenkinsURL(u, ctx)
+	case p.isYouTubeURL(u):
+		ctx.DetectedType = types.ContentTypeYouTubeURL
+		ctx.Confidence = 90
+		p.parseYouTubeURL(u, ctx)
 	case p.isNotionURL(u):
 		ctx.DetectedType = types.ContentTypeNotionURL
 		ctx.Confidence = 85
@@ -90,6 +98,10 @@ func (p *URLParser) isJenkinsURL(u *url.URL) bool {
 	}
 	jenkinsURL, _ := url.Parse(p.config.Jenkins.Domain)
 	return u.Host == jenkinsURL.Host
+}
+
+func (p *URLParser) isYouTubeURL(u *url.URL) bool {
+	return u.Host == "www.youtube.com" || u.Host == "youtube.com" || u.Host == "youtu.be" || u.Host == "m.youtube.com"
 }
 
 func (p *URLParser) isNotionURL(u *url.URL) bool {
@@ -160,6 +172,66 @@ func (p *URLParser) parseJenkinsURL(u *url.URL, ctx *types.ParseContext) {
 		ctx.Metadata["job_name"] = matches[1]
 		// Don't set build_number - it will be empty/nil
 	}
+}
+
+func (p *URLParser) parseYouTubeURL(u *url.URL, ctx *types.ParseContext) {
+	// Extract video ID from YouTube URLs
+	// Formats:
+	// - https://www.youtube.com/watch?v=VIDEO_ID
+	// - https://youtu.be/VIDEO_ID
+	// - https://www.youtube.com/embed/VIDEO_ID
+
+	var videoID string
+
+	if u.Host == "youtu.be" {
+		// Short format: https://youtu.be/VIDEO_ID
+		videoID = strings.TrimPrefix(u.Path, "/")
+	} else {
+		// Standard format: https://www.youtube.com/watch?v=VIDEO_ID
+		videoID = u.Query().Get("v")
+	}
+
+	if videoID == "" {
+		return
+	}
+
+	ctx.Metadata["video_id"] = videoID
+
+	// Fetch video title using YouTube oEmbed API (no API key required)
+	title := p.fetchYouTubeTitle(videoID)
+	if title != "" {
+		ctx.Metadata["title"] = title
+	}
+}
+
+func (p *URLParser) fetchYouTubeTitle(videoID string) string {
+	// Use YouTube oEmbed API to get video title
+	oembedURL := fmt.Sprintf("https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=%s&format=json", videoID)
+
+	resp, err := http.Get(oembedURL)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return ""
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ""
+	}
+
+	var result struct {
+		Title string `json:"title"`
+	}
+
+	if err := json.Unmarshal(body, &result); err != nil {
+		return ""
+	}
+
+	return result.Title
 }
 
 func (p *URLParser) parseNotionURL(u *url.URL, ctx *types.ParseContext) {

@@ -32,6 +32,8 @@ func (w *URLWriter) Vote(ctx *types.ParseContext) int {
 		return 95
 	case types.ContentTypeJenkinsURL:
 		return 90
+	case types.ContentTypeYouTubeURL:
+		return 95
 	case types.ContentTypeNotionURL:
 		return 85
 	case types.ContentTypeURL:
@@ -53,6 +55,8 @@ func (w *URLWriter) Write(ctx *types.ParseContext) (string, error) {
 		return w.writeJIRACommentURL(ctx)
 	case types.ContentTypeJenkinsURL:
 		return w.writeJenkinsURL(ctx)
+	case types.ContentTypeYouTubeURL:
+		return w.writeYouTubeURL(ctx)
 	case types.ContentTypeNotionURL:
 		return w.writeNotionURL(ctx)
 	case types.ContentTypeURL:
@@ -162,6 +166,19 @@ func (w *URLWriter) writeJenkinsURL(ctx *types.ParseContext) (string, error) {
 	} else {
 		linkText = fmt.Sprintf("jenkins/%s", jobName)
 	}
+	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
+}
+
+func (w *URLWriter) writeYouTubeURL(ctx *types.ParseContext) (string, error) {
+	title, _ := ctx.Metadata["title"].(string)
+
+	if title == "" {
+		// Fallback to generic URL if title fetch failed
+		return w.writeGenericURL(ctx)
+	}
+
+	// Format: [📺 TITLE](URL)
+	linkText := fmt.Sprintf("📺 %s", title)
 	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
 }
 

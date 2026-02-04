@@ -20,6 +20,7 @@ func TestURLWriter_Vote(t *testing.T) {
 		{"JIRA URL", types.ContentTypeJIRAURL, 90},
 		{"JIRA Comment", types.ContentTypeJIRAComment, 95},
 		{"Jenkins URL", types.ContentTypeJenkinsURL, 90},
+		{"YouTube URL", types.ContentTypeYouTubeURL, 95},
 		{"Notion URL", types.ContentTypeNotionURL, 85},
 		{"Generic URL", types.ContentTypeURL, 50},
 		{"JIRA Key", types.ContentTypeJIRAKey, 0},
@@ -329,6 +330,31 @@ func TestURLWriter_WriteJenkinsURL(t *testing.T) {
 				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
 			}
 		})
+	}
+}
+
+func TestURLWriter_WriteYouTubeURL(t *testing.T) {
+	cfg := &types.Config{}
+	writer := NewURLWriter(cfg)
+
+	ctx := &types.ParseContext{
+		OriginalInput: "https://www.youtube.com/watch?v=fkT41ooKBuY",
+		DetectedType:  types.ContentTypeYouTubeURL,
+		Metadata: map[string]interface{}{
+			"video_id": "fkT41ooKBuY",
+			"title":    "Stop overpaying for OpenAI: Multi-model routing guide",
+		},
+	}
+
+	expectedOutput := "[📺 Stop overpaying for OpenAI: Multi-model routing guide](https://www.youtube.com/watch?v=fkT41ooKBuY)"
+
+	output, err := writer.Write(ctx)
+	if err != nil {
+		t.Fatalf("Write() error = %v", err)
+	}
+
+	if output != expectedOutput {
+		t.Errorf("Write() = %v, want %v", output, expectedOutput)
 	}
 }
 

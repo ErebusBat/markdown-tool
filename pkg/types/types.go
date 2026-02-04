@@ -20,6 +20,7 @@ const (
 	ContentTypeJIRAComment
 	ContentTypeNotionURL
 	ContentTypeJenkinsURL
+	ContentTypeYouTubeURL
 	ContentTypeJIRAKey
 	ContentTypeJIRAKeyWithDescription
 	ContentTypePhone7Digit
