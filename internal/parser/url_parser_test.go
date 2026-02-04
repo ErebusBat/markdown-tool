@@ -242,6 +242,27 @@ func TestURLParser_Parse_Jenkins(t *testing.T) {
 			expectedJobName:     "my-project",
 			expectedBuildNumber: "42",
 		},
+		{
+			name:                "Jenkins URL with lastBuild",
+			input:               "https://jenkins.internal.upserve.com/job/app.swipely/lastBuild/",
+			expectedType:        types.ContentTypeJenkinsURL,
+			expectedJobName:     "app.swipely",
+			expectedBuildNumber: "",
+		},
+		{
+			name:                "Jenkins URL without build identifier",
+			input:               "https://jenkins.internal.upserve.com/job/my-project/",
+			expectedType:        types.ContentTypeJenkinsURL,
+			expectedJobName:     "my-project",
+			expectedBuildNumber: "",
+		},
+		{
+			name:                "Jenkins URL with lastSuccessfulBuild",
+			input:               "https://jenkins.internal.upserve.com/job/app.swipely/lastSuccessfulBuild/consoleText",
+			expectedType:        types.ContentTypeJenkinsURL,
+			expectedJobName:     "app.swipely",
+			expectedBuildNumber: "",
+		},
 	}
 
 	for _, tt := range tests {
@@ -263,7 +284,12 @@ func TestURLParser_Parse_Jenkins(t *testing.T) {
 			}
 
 			if buildNumber := ctx.Metadata["build_number"]; buildNumber != tt.expectedBuildNumber {
-				t.Errorf("Metadata[build_number] = %v, want %v", buildNumber, tt.expectedBuildNumber)
+				// Handle case where build_number is nil (not set) vs empty string
+				if tt.expectedBuildNumber == "" && buildNumber == nil {
+					// This is expected for URLs without build numbers
+				} else {
+					t.Errorf("Metadata[build_number] = %v, want %v", buildNumber, tt.expectedBuildNumber)
+				}
 			}
 		})
 	}

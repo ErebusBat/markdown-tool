@@ -286,6 +286,30 @@ func TestURLWriter_WriteJenkinsURL(t *testing.T) {
 			},
 			expectedOutput: "[jenkins/my-project#42](https://jenkins.internal.upserve.com/job/my-project/42/artifact/build.log)",
 		},
+		{
+			name:          "Jenkins URL with lastBuild",
+			originalInput: "https://jenkins.internal.upserve.com/job/app.swipely/lastBuild/",
+			metadata: map[string]interface{}{
+				"job_name": "app.swipely",
+			},
+			expectedOutput: "[jenkins/app.swipely](https://jenkins.internal.upserve.com/job/app.swipely/lastBuild/)",
+		},
+		{
+			name:          "Jenkins URL without build identifier",
+			originalInput: "https://jenkins.internal.upserve.com/job/my-project/",
+			metadata: map[string]interface{}{
+				"job_name": "my-project",
+			},
+			expectedOutput: "[jenkins/my-project](https://jenkins.internal.upserve.com/job/my-project/)",
+		},
+		{
+			name:          "Jenkins URL with lastSuccessfulBuild and console text",
+			originalInput: "https://jenkins.internal.upserve.com/job/app.swipely/lastSuccessfulBuild/consoleText",
+			metadata: map[string]interface{}{
+				"job_name": "app.swipely",
+			},
+			expectedOutput: "[jenkins/app.swipely](https://jenkins.internal.upserve.com/job/app.swipely/lastSuccessfulBuild/consoleText)",
+		},
 	}
 
 	for _, tt := range tests {

@@ -137,13 +137,28 @@ func (p *URLParser) parseJIRAURL(u *url.URL, ctx *types.ParseContext) {
 
 func (p *URLParser) parseJenkinsURL(u *url.URL, ctx *types.ParseContext) {
 	// Extract job name and build number from Jenkins URLs
-	// Path format: /job/{job-name}/{build-number}/[optional-path]
+	// Path formats:
+	// - /job/{job-name}/{build-number}/[optional-path]
+	// - /job/{job-name}/lastBuild/
+	// - /job/{job-name}/
 	// Example: /job/app.swipely/114/consoleText
+
+	// Try to match job name with numeric build number
 	re := regexp.MustCompile(`^/job/([^/]+)/(\d+)`)
 	matches := re.FindStringSubmatch(u.Path)
 	if len(matches) > 2 {
 		ctx.Metadata["job_name"] = matches[1]
 		ctx.Metadata["build_number"] = matches[2]
+		return
+	}
+
+	// If no numeric build number, just extract job name
+	// This handles cases like /job/{job-name}/lastBuild/ or /job/{job-name}/
+	re = regexp.MustCompile(`^/job/([^/]+)`)
+	matches = re.FindStringSubmatch(u.Path)
+	if len(matches) > 1 {
+		ctx.Metadata["job_name"] = matches[1]
+		// Don't set build_number - it will be empty/nil
 	}
 }
 

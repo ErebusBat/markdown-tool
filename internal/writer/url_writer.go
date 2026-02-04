@@ -151,12 +151,17 @@ func (w *URLWriter) writeJenkinsURL(ctx *types.ParseContext) (string, error) {
 	jobName, _ := ctx.Metadata["job_name"].(string)
 	buildNumber, _ := ctx.Metadata["build_number"].(string)
 
-	if jobName == "" || buildNumber == "" {
+	if jobName == "" {
 		return w.writeGenericURL(ctx)
 	}
 
-	// Format: jenkins/{job_name}#{build_number}
-	linkText := fmt.Sprintf("jenkins/%s#%s", jobName, buildNumber)
+	// Format: jenkins/{job_name}#{build_number} or jenkins/{job_name} (if no build number)
+	var linkText string
+	if buildNumber != "" {
+		linkText = fmt.Sprintf("jenkins/%s#%s", jobName, buildNumber)
+	} else {
+		linkText = fmt.Sprintf("jenkins/%s", jobName)
+	}
 	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
 }
 

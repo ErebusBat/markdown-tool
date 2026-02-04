@@ -93,6 +93,16 @@ func TestEndToEndTransformation(t *testing.T) {
 			expectedOutput: "[jenkins/app.swipely#114](https://jenkins.internal.upserve.com/job/app.swipely/114/consoleText)",
 		},
 		{
+			name:           "Jenkins URL with lastBuild",
+			input:          "https://jenkins.internal.upserve.com/job/app.swipely/lastBuild/",
+			expectedOutput: "[jenkins/app.swipely](https://jenkins.internal.upserve.com/job/app.swipely/lastBuild/)",
+		},
+		{
+			name:           "Jenkins URL without build identifier",
+			input:          "https://jenkins.internal.upserve.com/job/my-project/",
+			expectedOutput: "[jenkins/my-project](https://jenkins.internal.upserve.com/job/my-project/)",
+		},
+		{
 			name:           "Notion URL",
 			input:          "https://www.notion.so/companycam/VS-Code-Setup-for-Standard-rb-RubyLSP-654a6b070ae74ac3ad400c6d571507c0",
 			expectedOutput: "[VS Code Setup for Standard rb RubyLSP](https://www.notion.so/companycam/VS-Code-Setup-for-Standard-rb-RubyLSP-654a6b070ae74ac3ad400c6d571507c0)",
