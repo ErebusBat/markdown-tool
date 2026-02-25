@@ -23,5 +23,6 @@ func GetParsers(cfg *types.Config) []types.Parser {
 		NewJIRAKeyParser(cfg),
 		NewPhoneParser(cfg),
 		NewRaycastParser(cfg),
+		NewOpenCodeSessionParser(cfg),
 	}
 }
