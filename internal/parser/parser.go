@@ -17,6 +17,8 @@ func GetParsers(cfg *types.Config) []types.Parser {
 	return []types.Parser{
 		NewURLParser(cfg),
 		NewGitHubLongParser(cfg),
+		NewCodeCommitLongParser(cfg), // Process long format before short URL
+		NewCodeCommitParser(cfg),
 		NewJIRAKeyWithDescriptionParser(cfg), // Higher priority than simple JIRA key
 		NewJIRAKeyParser(cfg),
 		NewPhoneParser(cfg),

@@ -34,6 +34,10 @@ func (w *URLWriter) Vote(ctx *types.ParseContext) int {
 		return 90
 	case types.ContentTypeYouTubeURL:
 		return 95
+	case types.ContentTypeCodeCommitURL:
+		return 90
+	case types.ContentTypeCodeCommitLong:
+		return 95
 	case types.ContentTypeNotionURL:
 		return 85
 	case types.ContentTypeURL:
@@ -57,6 +61,10 @@ func (w *URLWriter) Write(ctx *types.ParseContext) (string, error) {
 		return w.writeJenkinsURL(ctx)
 	case types.ContentTypeYouTubeURL:
 		return w.writeYouTubeURL(ctx)
+	case types.ContentTypeCodeCommitURL:
+		return w.writeCodeCommitURL(ctx)
+	case types.ContentTypeCodeCommitLong:
+		return w.writeCodeCommitLongURL(ctx)
 	case types.ContentTypeNotionURL:
 		return w.writeNotionURL(ctx)
 	case types.ContentTypeURL:
@@ -191,6 +199,39 @@ func (w *URLWriter) writeNotionURL(ctx *types.ParseContext) (string, error) {
 	return fmt.Sprintf("[%s](%s)", title, ctx.OriginalInput), nil
 }
 
+func (w *URLWriter) writeCodeCommitURL(ctx *types.ParseContext) (string, error) {
+	region, _ := ctx.Metadata["region"].(string)
+	repo, _ := ctx.Metadata["repo"].(string)
+	number, _ := ctx.Metadata["number"].(string)
+
+	if region == "" || repo == "" || number == "" {
+		return w.writeGenericURL(ctx)
+	}
+
+	// Format: [region/repo#number](URL)
+	linkText := fmt.Sprintf("%s/%s#%s", region, repo, number)
+	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
+}
+
+func (w *URLWriter) writeCodeCommitLongURL(ctx *types.ParseContext) (string, error) {
+	region, _ := ctx.Metadata["region"].(string)
+	repo, _ := ctx.Metadata["repo"].(string)
+	number, _ := ctx.Metadata["number"].(string)
+	title, _ := ctx.Metadata["title"].(string)
+
+	if region == "" || repo == "" || number == "" || title == "" {
+		return ctx.OriginalInput, nil
+	}
+
+	// Build the CodeCommit URL
+	codecommitURL := fmt.Sprintf("https://%s.console.aws.amazon.com/codesuite/codecommit/repositories/%s/pull-requests/%s/details?region=%s",
+		region, repo, number, region)
+
+	// Format: [region/repo#number: title](URL)
+	linkText := fmt.Sprintf("%s/%s#%s: %s", region, repo, number, title)
+	return fmt.Sprintf("[%s](%s)", linkText, codecommitURL), nil
+}
+
 func (w *URLWriter) writeGenericURL(ctx *types.ParseContext) (string, error) {
 	u, err := url.Parse(ctx.OriginalInput)
 	if err != nil {
@@ -207,7 +248,7 @@ func (w *URLWriter) writeGenericURL(ctx *types.ParseContext) (string, error) {
 	if w.config.URL.DomainMappings != nil {
 		// Convert domain to underscore format for lookup (e.g., mail.google.com -> mail_google_com)
 		domainKey := strings.ReplaceAll(domain, ".", "_")
-		
+
 		// Try case-insensitive lookup since Viper lowercases map keys
 		for key, mapped := range w.config.URL.DomainMappings {
 			if strings.EqualFold(key, domainKey) {

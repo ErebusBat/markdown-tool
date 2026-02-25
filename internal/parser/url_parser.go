@@ -63,6 +63,10 @@ func (p *URLParser) Parse(input string) (*types.ParseContext, error) {
 		ctx.DetectedType = types.ContentTypeYouTubeURL
 		ctx.Confidence = 90
 		p.parseYouTubeURL(u, ctx)
+	case p.isCodeCommitURL(u):
+		ctx.DetectedType = types.ContentTypeCodeCommitURL
+		ctx.Confidence = 90
+		p.parseCodeCommitURL(u, ctx)
 	case p.isNotionURL(u):
 		ctx.DetectedType = types.ContentTypeNotionURL
 		ctx.Confidence = 85
@@ -102,6 +106,12 @@ func (p *URLParser) isJenkinsURL(u *url.URL) bool {
 
 func (p *URLParser) isYouTubeURL(u *url.URL) bool {
 	return u.Host == "www.youtube.com" || u.Host == "youtube.com" || u.Host == "youtu.be" || u.Host == "m.youtube.com"
+}
+
+func (p *URLParser) isCodeCommitURL(u *url.URL) bool {
+	return strings.Contains(u.Host, "console.aws.amazon.com") &&
+		strings.Contains(u.Path, "/codesuite/codecommit/repositories/") &&
+		strings.Contains(u.Path, "/pull-requests/")
 }
 
 func (p *URLParser) isNotionURL(u *url.URL) bool {
@@ -232,6 +242,23 @@ func (p *URLParser) fetchYouTubeTitle(videoID string) string {
 	}
 
 	return result.Title
+}
+
+func (p *URLParser) parseCodeCommitURL(u *url.URL, ctx *types.ParseContext) {
+	// Extract region from subdomain (e.g., us-east-1.console.aws.amazon.com)
+	parts := strings.Split(u.Host, ".")
+	if len(parts) > 0 {
+		ctx.Metadata["region"] = parts[0]
+	}
+
+	// Extract repository name and PR number from path
+	// Path format: /codesuite/codecommit/repositories/{repo}/pull-requests/{number}/details
+	re := regexp.MustCompile(`/repositories/([^/]+)/pull-requests/(\d+)`)
+	matches := re.FindStringSubmatch(u.Path)
+	if len(matches) > 2 {
+		ctx.Metadata["repo"] = matches[1]
+		ctx.Metadata["number"] = matches[2]
+	}
 }
 
 func (p *URLParser) parseNotionURL(u *url.URL, ctx *types.ParseContext) {

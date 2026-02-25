@@ -21,6 +21,8 @@ func TestURLWriter_Vote(t *testing.T) {
 		{"JIRA Comment", types.ContentTypeJIRAComment, 95},
 		{"Jenkins URL", types.ContentTypeJenkinsURL, 90},
 		{"YouTube URL", types.ContentTypeYouTubeURL, 95},
+		{"CodeCommit URL", types.ContentTypeCodeCommitURL, 90},
+		{"CodeCommit Long", types.ContentTypeCodeCommitLong, 95},
 		{"Notion URL", types.ContentTypeNotionURL, 85},
 		{"Generic URL", types.ContentTypeURL, 50},
 		{"JIRA Key", types.ContentTypeJIRAKey, 0},
@@ -577,6 +579,122 @@ func TestURLWriter_WriteGenericURL(t *testing.T) {
 			ctx := &types.ParseContext{
 				OriginalInput: tt.originalInput,
 				DetectedType:  types.ContentTypeURL,
+				Metadata:      tt.metadata,
+			}
+
+			output, err := writer.Write(ctx)
+			if err != nil {
+				t.Fatalf("Write() error = %v", err)
+			}
+
+			if output != tt.expectedOutput {
+				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
+			}
+		})
+	}
+}
+
+func TestURLWriter_WriteCodeCommitURL(t *testing.T) {
+	cfg := &types.Config{}
+	writer := NewURLWriter(cfg)
+
+	tests := []struct {
+		name           string
+		originalInput  string
+		metadata       map[string]interface{}
+		expectedOutput string
+	}{
+		{
+			name:          "CodeCommit PR URL us-east-1",
+			originalInput: "https://us-east-1.console.aws.amazon.com/codesuite/codecommit/repositories/upserve-env/pull-requests/411/details?region=us-east-1",
+			metadata: map[string]interface{}{
+				"region": "us-east-1",
+				"repo":   "upserve-env",
+				"number": "411",
+			},
+			expectedOutput: "[us-east-1/upserve-env#411](https://us-east-1.console.aws.amazon.com/codesuite/codecommit/repositories/upserve-env/pull-requests/411/details?region=us-east-1)",
+		},
+		{
+			name:          "CodeCommit PR URL us-west-2",
+			originalInput: "https://us-west-2.console.aws.amazon.com/codesuite/codecommit/repositories/my-repo/pull-requests/123/details?region=us-west-2",
+			metadata: map[string]interface{}{
+				"region": "us-west-2",
+				"repo":   "my-repo",
+				"number": "123",
+			},
+			expectedOutput: "[us-west-2/my-repo#123](https://us-west-2.console.aws.amazon.com/codesuite/codecommit/repositories/my-repo/pull-requests/123/details?region=us-west-2)",
+		},
+		{
+			name:          "CodeCommit PR URL eu-west-1",
+			originalInput: "https://eu-west-1.console.aws.amazon.com/codesuite/codecommit/repositories/test-repo/pull-requests/42/details?region=eu-west-1",
+			metadata: map[string]interface{}{
+				"region": "eu-west-1",
+				"repo":   "test-repo",
+				"number": "42",
+			},
+			expectedOutput: "[eu-west-1/test-repo#42](https://eu-west-1.console.aws.amazon.com/codesuite/codecommit/repositories/test-repo/pull-requests/42/details?region=eu-west-1)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := &types.ParseContext{
+				OriginalInput: tt.originalInput,
+				DetectedType:  types.ContentTypeCodeCommitURL,
+				Metadata:      tt.metadata,
+			}
+
+			output, err := writer.Write(ctx)
+			if err != nil {
+				t.Fatalf("Write() error = %v", err)
+			}
+
+			if output != tt.expectedOutput {
+				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
+			}
+		})
+	}
+}
+
+func TestURLWriter_WriteCodeCommitLongURL(t *testing.T) {
+	cfg := &types.Config{}
+	writer := NewURLWriter(cfg)
+
+	tests := []struct {
+		name           string
+		originalInput  string
+		metadata       map[string]interface{}
+		expectedOutput string
+	}{
+		{
+			name:          "CodeCommit long format",
+			originalInput: "AWS Console text chunk",
+			metadata: map[string]interface{}{
+				"region": "us-east-1",
+				"repo":   "upserve-env",
+				"number": "411",
+				"title":  "SEC-12335: Pass SENDGRID_API_KEY Securley",
+			},
+			expectedOutput: "[us-east-1/upserve-env#411: SEC-12335: Pass SENDGRID_API_KEY Securley](https://us-east-1.console.aws.amazon.com/codesuite/codecommit/repositories/upserve-env/pull-requests/411/details?region=us-east-1)",
+		},
+		{
+			name:          "CodeCommit long format different region",
+			originalInput: "AWS Console text chunk",
+			metadata: map[string]interface{}{
+				"region": "us-west-2",
+				"repo":   "my-repo",
+				"number": "123",
+				"title":  "Fix authentication bug",
+			},
+			expectedOutput: "[us-west-2/my-repo#123: Fix authentication bug](https://us-west-2.console.aws.amazon.com/codesuite/codecommit/repositories/my-repo/pull-requests/123/details?region=us-west-2)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := &types.ParseContext{
+				OriginalInput: tt.originalInput,
+				DetectedType:  types.ContentTypeCodeCommitLong,
 				Metadata:      tt.metadata,
 			}
 

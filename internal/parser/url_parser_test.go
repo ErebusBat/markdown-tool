@@ -295,6 +295,63 @@ func TestURLParser_Parse_Jenkins(t *testing.T) {
 	}
 }
 
+func TestURLParser_Parse_CodeCommit(t *testing.T) {
+	cfg := &types.Config{}
+	parser := NewURLParser(cfg)
+
+	tests := []struct {
+		name           string
+		input          string
+		expectedType   types.ContentType
+		expectedRegion string
+		expectedRepo   string
+		expectedNumber string
+	}{
+		{
+			name:           "CodeCommit PR URL us-east-1",
+			input:          "https://us-east-1.console.aws.amazon.com/codesuite/codecommit/repositories/upserve-env/pull-requests/411/details?region=us-east-1",
+			expectedType:   types.ContentTypeCodeCommitURL,
+			expectedRegion: "us-east-1",
+			expectedRepo:   "upserve-env",
+			expectedNumber: "411",
+		},
+		{
+			name:           "CodeCommit PR URL us-west-2",
+			input:          "https://us-west-2.console.aws.amazon.com/codesuite/codecommit/repositories/my-repo/pull-requests/123/details?region=us-west-2",
+			expectedType:   types.ContentTypeCodeCommitURL,
+			expectedRegion: "us-west-2",
+			expectedRepo:   "my-repo",
+			expectedNumber: "123",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, err := parser.Parse(tt.input)
+			if err != nil {
+				t.Fatalf("Parse() error = %v", err)
+			}
+			if ctx == nil {
+				t.Fatal("Parse() returned nil context")
+			}
+
+			if ctx.DetectedType != tt.expectedType {
+				t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, tt.expectedType)
+			}
+
+			if region := ctx.Metadata["region"]; region != tt.expectedRegion {
+				t.Errorf("Metadata[region] = %v, want %v", region, tt.expectedRegion)
+			}
+			if repo := ctx.Metadata["repo"]; repo != tt.expectedRepo {
+				t.Errorf("Metadata[repo] = %v, want %v", repo, tt.expectedRepo)
+			}
+			if number := ctx.Metadata["number"]; number != tt.expectedNumber {
+				t.Errorf("Metadata[number] = %v, want %v", number, tt.expectedNumber)
+			}
+		})
+	}
+}
+
 func TestURLParser_Parse_Notion(t *testing.T) {
 	cfg := &types.Config{}
 	parser := NewURLParser(cfg)

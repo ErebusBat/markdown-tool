@@ -21,6 +21,8 @@ const (
 	ContentTypeNotionURL
 	ContentTypeJenkinsURL
 	ContentTypeYouTubeURL
+	ContentTypeCodeCommitURL
+	ContentTypeCodeCommitLong
 	ContentTypeJIRAKey
 	ContentTypeJIRAKeyWithDescription
 	ContentTypePhone7Digit
