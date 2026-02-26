@@ -17,44 +17,48 @@ func NewGitHubLongParser(cfg *types.Config) *GitHubLongParser {
 
 func (p *GitHubLongParser) CanHandle(input string) bool {
 	lines := strings.Split(strings.TrimSpace(input), "\n")
-	
+
 	// Case 1: Simple issue title pattern (single line or few lines)
 	if isSimpleIssueTitle(input) {
 		return true
 	}
-	
+
 	// Case 2 & 3: Multi-line GitHub UI content
 	if len(lines) < 3 {
 		return false
 	}
 
 	// Look for patterns that suggest GitHub UI content
-	var hasOrgCandidate, hasRepoCandidate, hasIssueTitle bool
-	
+	var hasOrgCandidate, hasRepoCandidate, hasIssueTitle, hasIssueNumberLine bool
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
-		
+
 		// Check for potential organization name (simple word, often starts with capital)
 		if isValidGitHubName(line) && !hasOrgCandidate {
 			hasOrgCandidate = true
 		}
-		
+
 		// Check for potential repository name (can contain hyphens, underscores)
 		if isValidRepoName(line) && !hasRepoCandidate {
 			hasRepoCandidate = true
 		}
-		
+
 		// Check for issue/PR title with number at the end
 		if hasIssueTitleWithNumber(line) {
 			hasIssueTitle = true
 		}
+
+		if hasStandaloneIssueNumberLine(line) {
+			hasIssueNumberLine = true
+		}
 	}
 
 	// We need at least org-like, repo-like, and issue title patterns
-	return hasOrgCandidate && hasRepoCandidate && hasIssueTitle
+	return hasOrgCandidate && hasRepoCandidate && (hasIssueTitle || hasIssueNumberLine)
 }
 
 func (p *GitHubLongParser) Parse(input string) (*types.ParseContext, error) {
@@ -63,45 +67,66 @@ func (p *GitHubLongParser) Parse(input string) (*types.ParseContext, error) {
 	}
 
 	lines := strings.Split(strings.TrimSpace(input), "\n")
-	
+
 	var org, repo, issueTitle, issueNumber string
-	
+	issueType := detectGitHubIssueType(lines)
+
 	// Check if this is a simple issue title pattern
 	if isSimpleIssueTitle(input) {
 		return p.parseSimpleIssueTitle(input)
 	}
-	
+
 	// Handle multi-line GitHub UI content (existing logic)
 	// First pass: find the issue title with number (most distinctive)
+	var rawTitleLine string
+	var previousNonEmpty string
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
 		if hasIssueTitleWithNumber(line) {
 			issueTitle, issueNumber = extractIssueTitleAndNumber(line)
+			rawTitleLine = line
 			break
 		}
+
+		if hasStandaloneIssueNumberLine(line) {
+			issueNumber = extractStandaloneIssueNumber(line)
+			issueTitle = previousNonEmpty
+			rawTitleLine = previousNonEmpty
+			break
+		}
+
+		previousNonEmpty = line
 	}
-	
+
 	if issueTitle == "" || issueNumber == "" {
 		return nil, nil
 	}
-	
+
+	issueTitle = stripLeadingJiraKey(issueTitle)
+
 	// Second pass: find org and repo names
 	// In GitHub UI copies, the first line is typically the org, second line is the repo
 	var foundOrg, foundRepo bool
-	
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "" || strings.Contains(line, issueTitle) {
+		if line == "" || line == rawTitleLine || hasStandaloneIssueNumberLine(line) {
 			continue
 		}
-		
+		if issueTitle != "" && strings.Contains(line, issueTitle) {
+			continue
+		}
+
 		// First valid GitHub name should be the org
 		if !foundOrg && isValidGitHubName(line) {
 			org = line
 			foundOrg = true
 			continue
 		}
-		
+
 		// Second valid name (that's different from org) should be the repo
 		if foundOrg && !foundRepo && isValidRepoName(line) && line != org {
 			repo = line
@@ -109,7 +134,7 @@ func (p *GitHubLongParser) Parse(input string) (*types.ParseContext, error) {
 			break
 		}
 	}
-	
+
 	if org == "" || repo == "" {
 		return nil, nil
 	}
@@ -119,11 +144,11 @@ func (p *GitHubLongParser) Parse(input string) (*types.ParseContext, error) {
 		DetectedType:  types.ContentTypeGitHubLong,
 		Confidence:    90,
 		Metadata: map[string]interface{}{
-			"org":         org,
-			"repo":        repo,
-			"title":       issueTitle,
-			"number":      issueNumber,
-			"type":        "issues", // Default to issues, could be enhanced to detect PRs
+			"org":    org,
+			"repo":   repo,
+			"title":  issueTitle,
+			"number": issueNumber,
+			"type":   issueType,
 		},
 	}
 
@@ -133,16 +158,16 @@ func (p *GitHubLongParser) Parse(input string) (*types.ParseContext, error) {
 // parseSimpleIssueTitle handles simple issue title patterns using default org/repo from config
 func (p *GitHubLongParser) parseSimpleIssueTitle(input string) (*types.ParseContext, error) {
 	lines := strings.Split(strings.TrimSpace(input), "\n")
-	
+
 	var issueTitle, issueNumber string
-	
+
 	// Find the line with the issue title
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
-		
+
 		// Check for username prefix pattern
 		if hasGitHubUsernamePrefix(line) {
 			issueTitle, issueNumber = extractUsernameAndIssue(line)
@@ -150,7 +175,7 @@ func (p *GitHubLongParser) parseSimpleIssueTitle(input string) (*types.ParseCont
 				break
 			}
 		}
-		
+
 		// Check for simple issue title with number
 		if hasIssueTitleWithNumber(line) {
 			issueTitle, issueNumber = extractIssueTitleAndNumber(line)
@@ -159,15 +184,17 @@ func (p *GitHubLongParser) parseSimpleIssueTitle(input string) (*types.ParseCont
 			}
 		}
 	}
-	
+
 	if issueTitle == "" || issueNumber == "" {
 		return nil, nil
 	}
-	
+
+	issueTitle = stripLeadingJiraKey(issueTitle)
+
 	// Use default org and repo from config
 	org := p.config.GitHub.DefaultOrg
 	repo := p.config.GitHub.DefaultRepo
-	
+
 	if org == "" || repo == "" {
 		return nil, nil
 	}
@@ -177,11 +204,11 @@ func (p *GitHubLongParser) parseSimpleIssueTitle(input string) (*types.ParseCont
 		DetectedType:  types.ContentTypeGitHubLong,
 		Confidence:    95, // Higher confidence for simple patterns
 		Metadata: map[string]interface{}{
-			"org":         org,
-			"repo":        repo,
-			"title":       issueTitle,
-			"number":      issueNumber,
-			"type":        "issues",
+			"org":    org,
+			"repo":   repo,
+			"title":  issueTitle,
+			"number": issueNumber,
+			"type":   "issues",
 		},
 	}
 
@@ -208,7 +235,7 @@ func isValidGitHubName(s string) bool {
 	if len(s) == 0 || len(s) > 39 {
 		return false
 	}
-	
+
 	// GitHub names can contain alphanumeric and hyphens, but not start/end with hyphen
 	re := regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$`)
 	return re.MatchString(s)
@@ -219,7 +246,7 @@ func isValidRepoName(s string) bool {
 	if len(s) == 0 || len(s) > 100 {
 		return false
 	}
-	
+
 	// Repo names can contain alphanumeric, hyphens, underscores, dots
 	re := regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
 	return re.MatchString(s)
@@ -243,47 +270,61 @@ func extractIssueTitleAndNumber(s string) (title, number string) {
 	return "", ""
 }
 
+func hasStandaloneIssueNumberLine(s string) bool {
+	re := regexp.MustCompile(`^#\d+\s*$`)
+	return re.MatchString(strings.TrimSpace(s))
+}
+
+func extractStandaloneIssueNumber(s string) string {
+	re := regexp.MustCompile(`^#(\d+)\s*$`)
+	matches := re.FindStringSubmatch(strings.TrimSpace(s))
+	if len(matches) == 2 {
+		return matches[1]
+	}
+	return ""
+}
+
 // isSimpleIssueTitle checks if input is a simple issue title pattern (just title + #number)
 func isSimpleIssueTitle(input string) bool {
 	lines := strings.Split(strings.TrimSpace(input), "\n")
-	
+
 	// For simple patterns, we allow single line or up to 3 lines
 	// But we need to ensure it's not a multi-line GitHub UI pattern
 	if len(lines) > 3 {
 		return false
 	}
-	
+
 	// If it's a single line, check for issue patterns
 	if len(lines) == 1 {
 		line := strings.TrimSpace(lines[0])
 		return hasGitHubUsernamePrefix(line) || hasIssueTitleWithNumber(line)
 	}
-	
+
 	// For multi-line, it should not have typical GitHub UI indicators
 	// Also, if we have org/repo-like lines, it should be handled as multi-line
 	hasGitHubUIIndicators := false
 	var issueLineCount int
 	var orgRepoLikeLineCount int
-	
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
-		
+
 		// Check for GitHub UI indicators
-		if strings.Contains(line, "Type / to search") || 
-		   strings.Contains(line, "Pull requests") ||
-		   strings.Contains(line, "Discussions") ||
-		   strings.Contains(line, "Actions") ||
-		   strings.Contains(line, "Projects") ||
-		   strings.Contains(line, "Wiki") ||
-		   strings.Contains(line, "Security") ||
-		   strings.Contains(line, "Insights") ||
-		   strings.Contains(line, "Settings") {
+		if strings.Contains(line, "Type / to search") ||
+			strings.Contains(line, "Pull requests") ||
+			strings.Contains(line, "Discussions") ||
+			strings.Contains(line, "Actions") ||
+			strings.Contains(line, "Projects") ||
+			strings.Contains(line, "Wiki") ||
+			strings.Contains(line, "Security") ||
+			strings.Contains(line, "Insights") ||
+			strings.Contains(line, "Settings") {
 			hasGitHubUIIndicators = true
 		}
-		
+
 		// Count lines with issue patterns
 		if hasGitHubUsernamePrefix(line) || hasIssueTitleWithNumber(line) {
 			issueLineCount++
@@ -292,17 +333,17 @@ func isSimpleIssueTitle(input string) bool {
 			orgRepoLikeLineCount++
 		}
 	}
-	
+
 	// If we have GitHub UI indicators, this should be handled by multi-line logic
 	if hasGitHubUIIndicators {
 		return false
 	}
-	
+
 	// If we have org/repo-like lines, treat as multi-line GitHub UI content
 	if orgRepoLikeLineCount >= 2 {
 		return false
 	}
-	
+
 	// We should have exactly one issue line for simple patterns
 	return issueLineCount == 1
 }
@@ -317,13 +358,13 @@ func hasGitHubUsernamePrefix(s string) bool {
 	if !re.MatchString(line) {
 		return false
 	}
-	
+
 	// Make sure the first word is actually a valid GitHub username
 	parts := strings.Fields(line)
 	if len(parts) < 3 { // username + at least one word + #number
 		return false
 	}
-	
+
 	return isGitHubUsername(parts[0])
 }
 
@@ -332,14 +373,14 @@ func isGitHubUsername(s string) bool {
 	if len(s) == 0 || len(s) > 39 {
 		return false
 	}
-	
+
 	// GitHub usernames can contain alphanumeric, hyphens, and underscores
 	// but cannot start or end with hyphens
 	re := regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$`)
 	if !re.MatchString(s) {
 		return false
 	}
-	
+
 	// Additional check: common English words are unlikely to be usernames
 	// This helps distinguish "adds" from actual usernames like "user123"
 	commonWords := []string{"adds", "fixes", "updates", "removes", "creates", "deletes", "implements", "enhances", "refactors", "only", "some", "the", "and", "with", "for", "from", "this", "that"}
@@ -348,6 +389,27 @@ func isGitHubUsername(s string) bool {
 			return false
 		}
 	}
-	
+
 	return true
+}
+
+func detectGitHubIssueType(lines []string) string {
+	for _, line := range lines {
+		lower := strings.ToLower(strings.TrimSpace(line))
+		if strings.Contains(lower, "review requested") || strings.Contains(lower, "requested your review") {
+			return "pull"
+		}
+		if strings.Contains(lower, "pull request") && !strings.Contains(lower, "pull requests") {
+			return "pull"
+		}
+	}
+
+	return "issues"
+}
+
+var leadingJiraKeyRegex = regexp.MustCompile(`^\s*(\[[A-Z][A-Z0-9]+-\d+\]\s*|[A-Z][A-Z0-9]+-\d+:\s*)`)
+
+func stripLeadingJiraKey(title string) string {
+	cleaned := leadingJiraKeyRegex.ReplaceAllString(title, "")
+	return strings.TrimSpace(cleaned)
 }

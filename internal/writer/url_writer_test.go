@@ -428,6 +428,23 @@ func TestURLWriter_WriteGitHubLongURL(t *testing.T) {
 			originalInput:  "GitHub UI text chunk",
 			expectedOutput: "[CompanyCam/API#123: Fix authentication bug](https://github.com/CompanyCam/companycam-mobile/issues/123)",
 		},
+		{
+			name: "GitHub Long strips JIRA key from title",
+			config: &types.Config{
+				GitHub: types.GitHubConfig{
+					Mappings: map[string]string{},
+				},
+			},
+			metadata: map[string]interface{}{
+				"org":    "upserve",
+				"repo":   "tokenizer",
+				"title":  "[HQ-13237] Update rack to 2.2.22",
+				"number": "250",
+				"type":   "pull",
+			},
+			originalInput:  "GitHub UI text chunk",
+			expectedOutput: "[upserve/tokenizer#250: Update rack to 2.2.22](https://github.com/upserve/tokenizer/pull/250)",
+		},
 	}
 
 	for _, tt := range tests {

@@ -3,6 +3,7 @@ package writer
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/erebusbat/markdown-tool/pkg/types"
@@ -108,7 +109,7 @@ func (w *URLWriter) writeGitHubURL(ctx *types.ParseContext) (string, error) {
 	} else {
 		linkText = orgRepo
 	}
-	
+
 	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
 }
 
@@ -118,6 +119,8 @@ func (w *URLWriter) writeGitHubLongURL(ctx *types.ParseContext) (string, error) 
 	title, _ := ctx.Metadata["title"].(string)
 	number, _ := ctx.Metadata["number"].(string)
 	issueType, _ := ctx.Metadata["type"].(string)
+
+	title = stripLeadingJiraKey(title)
 
 	if org == "" || repo == "" || title == "" || number == "" {
 		return ctx.OriginalInput, nil
@@ -135,7 +138,7 @@ func (w *URLWriter) writeGitHubLongURL(ctx *types.ParseContext) (string, error) 
 
 	// Build the GitHub URL
 	githubURL := fmt.Sprintf("https://github.com/%s/%s/%s/%s", org, repo, issueType, number)
-	
+
 	// Create the link text with org/repo#number: title format
 	linkText := fmt.Sprintf("%s#%s: %s", orgRepo, number, title)
 	return fmt.Sprintf("[%s](%s)", linkText, githubURL), nil
@@ -259,4 +262,11 @@ func (w *URLWriter) writeGenericURL(ctx *types.ParseContext) (string, error) {
 	}
 
 	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
+}
+
+var leadingJiraKeyRegex = regexp.MustCompile(`^\s*(\[[A-Z][A-Z0-9]+-\d+\]\s*|[A-Z][A-Z0-9]+-\d+:\s*)`)
+
+func stripLeadingJiraKey(title string) string {
+	cleaned := leadingJiraKeyRegex.ReplaceAllString(title, "")
+	return strings.TrimSpace(cleaned)
 }

@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/erebusbat/markdown-tool/pkg/types"
@@ -208,6 +209,67 @@ Assignees`,
 			expectedNumber: "999",
 		},
 		{
+			name: "GitHub PR with leading JIRA key in title",
+			input: `upserve
+tokenizer
+Repository navigation
+Code
+Issues
+12
+ (12)
+Pull requests
+5
+ (5)
+Agents
+Actions
+Projects
+Wiki
+Security
+59
+ (59)
+Insights
+Settings
+Review requested
+ls-kyle-oliveira requested your review on this pull request.
+[HQ-13237] Update rack to 2.2.22 #250`,
+			expectSuccess:  true,
+			expectedOrg:    "upserve",
+			expectedRepo:   "tokenizer",
+			expectedTitle:  "Update rack to 2.2.22",
+			expectedNumber: "250",
+		},
+		{
+			name: "GitHub PR with title and number on separate lines",
+			input: `upserve
+tokenizer
+Repository navigation
+Code
+Issues
+12
+ (12)
+Pull requests
+5
+ (5)
+Agents
+Actions
+Projects
+Wiki
+Security
+59
+ (59)
+Insights
+Settings
+Review requested
+ls-kyle-oliveira requested your review on this pull request.
+[HQ-13237] Update rack to 2.2.22
+#250`,
+			expectSuccess:  true,
+			expectedOrg:    "upserve",
+			expectedRepo:   "tokenizer",
+			expectedTitle:  "Update rack to 2.2.22",
+			expectedNumber: "250",
+		},
+		{
 			name: "Invalid input - no issue number",
 			input: `CompanyCam
 companycam-mobile
@@ -215,8 +277,8 @@ Just some description without number`,
 			expectSuccess: false,
 		},
 		{
-			name: "Single line issue (should use defaults)",
-			input: `Only one line with issue #123`,
+			name:           "Single line issue (should use defaults)",
+			input:          `Only one line with issue #123`,
 			expectSuccess:  true,
 			expectedOrg:    "CompanyCam",
 			expectedRepo:   "Company-Cam-API",
@@ -342,7 +404,7 @@ Lettercarrier6 My long Descr#285`,
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, err := parser.Parse(tt.input)
-			
+
 			if err != nil {
 				t.Fatalf("Parse() error = %v", err)
 			}
@@ -359,12 +421,12 @@ Lettercarrier6 My long Descr#285`,
 				// Simple issue patterns have confidence 95, multi-line patterns have 90
 				expectedConfidence := 90
 				if tt.name == "Simple issue title with default org/repo" ||
-				   tt.name == "Issue with username prefix" ||
-				   tt.name == "Issue with username and underscore" ||
-				   tt.name == "Single line issue (should use defaults)" {
+					tt.name == "Issue with username prefix" ||
+					tt.name == "Issue with username and underscore" ||
+					tt.name == "Single line issue (should use defaults)" {
 					expectedConfidence = 95
 				}
-				
+
 				if ctx.Confidence != expectedConfidence {
 					t.Errorf("Confidence = %v, want %v", ctx.Confidence, expectedConfidence)
 				}
@@ -385,8 +447,12 @@ Lettercarrier6 My long Descr#285`,
 					t.Errorf("Metadata[number] = %v, want %v", number, tt.expectedNumber)
 				}
 
-				if issueType := ctx.Metadata["type"]; issueType != "issues" {
-					t.Errorf("Metadata[type] = %v, want issues", issueType)
+				expectedIssueType := "issues"
+				if strings.Contains(tt.name, "PR") {
+					expectedIssueType = "pull"
+				}
+				if issueType := ctx.Metadata["type"]; issueType != expectedIssueType {
+					t.Errorf("Metadata[type] = %v, want %s", issueType, expectedIssueType)
 				}
 			} else {
 				if ctx != nil {
@@ -438,7 +504,7 @@ func TestGitHubLongParser_HelperFunctions(t *testing.T) {
 		{"Invalid - no username", "hasGitHubUsernamePrefix", "adds blinc ddagent file #15407", false},
 		{"Invalid - number not at end", "hasGitHubUsernamePrefix", "user adds #123 more text", false},
 
-		// isGitHubUsername tests  
+		// isGitHubUsername tests
 		{"Valid username", "isGitHubUsername", "courtneylw", true},
 		{"Valid username with underscore", "isGitHubUsername", "plat_188", true},
 		{"Valid username with hyphen", "isGitHubUsername", "user-name", true},
@@ -477,10 +543,10 @@ func TestGitHubLongParser_HelperFunctions(t *testing.T) {
 
 func TestExtractIssueTitleAndNumber(t *testing.T) {
 	tests := []struct {
-		name            string
-		input           string
-		expectedTitle   string
-		expectedNumber  string
+		name           string
+		input          string
+		expectedTitle  string
+		expectedNumber string
 	}{
 		{
 			name:           "Simple issue",
@@ -523,11 +589,11 @@ func TestExtractIssueTitleAndNumber(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			title, number := extractIssueTitleAndNumber(tt.input)
-			
+
 			if title != tt.expectedTitle {
 				t.Errorf("extractIssueTitleAndNumber() title = %q, want %q", title, tt.expectedTitle)
 			}
-			
+
 			if number != tt.expectedNumber {
 				t.Errorf("extractIssueTitleAndNumber() number = %q, want %q", number, tt.expectedNumber)
 			}
@@ -537,10 +603,10 @@ func TestExtractIssueTitleAndNumber(t *testing.T) {
 
 func TestExtractUsernameAndIssue(t *testing.T) {
 	tests := []struct {
-		name            string
-		input           string
-		expectedTitle   string
-		expectedNumber  string
+		name           string
+		input          string
+		expectedTitle  string
+		expectedNumber string
 	}{
 		{
 			name:           "Username with simple issue",
@@ -595,11 +661,11 @@ func TestExtractUsernameAndIssue(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			title, number := extractUsernameAndIssue(tt.input)
-			
+
 			if title != tt.expectedTitle {
 				t.Errorf("extractUsernameAndIssue() title = %q, want %q", title, tt.expectedTitle)
 			}
-			
+
 			if number != tt.expectedNumber {
 				t.Errorf("extractUsernameAndIssue() number = %q, want %q", number, tt.expectedNumber)
 			}
