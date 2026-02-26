@@ -9,7 +9,7 @@ Quickly and easily translates text content (usually from the clipboard) into use
 ## Requirements
 
 ### Must Have
-- [To be defined during planning]
+- GitHub long-form output excludes leading JIRA keys in titles
 
 ### Should Have
 - [To be defined during planning]
@@ -26,3 +26,4 @@ Quickly and easily translates text content (usually from the clipboard) into use
 
 ---
 *Created: 2026-02-26 09:33*
+*Last updated: 2026-02-26 after Phase 1*
