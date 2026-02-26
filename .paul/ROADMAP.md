@@ -5,14 +5,14 @@ An adjustment to the GitHub long form content. Given the following input it shou
 
 ## Current Milestone
 **v0.1 Initial Release** (v0.1.0)
-Status: Not started
+Status: In progress
 Phases: 0 of TBD complete
 
 ## Phases
 
 | Phase | Name | Plans | Status | Completed |
 |-------|------|-------|--------|-----------|
-| 1 | TBD | TBD | Not started | - |
+| 1 | GitHub Long Form Cleanup | 1 | Planning | - |
 
 ## Phase Details
 
