@@ -271,13 +271,13 @@ func extractIssueTitleAndNumber(s string) (title, number string) {
 }
 
 func hasStandaloneIssueNumberLine(s string) bool {
-	re := regexp.MustCompile(`^#\d+\s*$`)
-	return re.MatchString(strings.TrimSpace(s))
+	re := regexp.MustCompile(`^\s*#\s*\d+\s*$`)
+	return re.MatchString(s)
 }
 
 func extractStandaloneIssueNumber(s string) string {
-	re := regexp.MustCompile(`^#(\d+)\s*$`)
-	matches := re.FindStringSubmatch(strings.TrimSpace(s))
+	re := regexp.MustCompile(`^\s*#\s*(\d+)\s*$`)
+	matches := re.FindStringSubmatch(s)
 	if len(matches) == 2 {
 		return matches[1]
 	}
@@ -394,14 +394,30 @@ func isGitHubUsername(s string) bool {
 }
 
 func detectGitHubIssueType(lines []string) string {
+	hasAgents := false
+	hasPullRequests := false
+	hasRepositoryNavigation := false
 	for _, line := range lines {
 		lower := strings.ToLower(strings.TrimSpace(line))
+		if lower == "agents" {
+			hasAgents = true
+		}
+		if lower == "pull requests" {
+			hasPullRequests = true
+		}
+		if lower == "repository navigation" {
+			hasRepositoryNavigation = true
+		}
 		if strings.Contains(lower, "review requested") || strings.Contains(lower, "requested your review") {
 			return "pull"
 		}
 		if strings.Contains(lower, "pull request") && !strings.Contains(lower, "pull requests") {
 			return "pull"
 		}
+	}
+
+	if hasRepositoryNavigation && hasPullRequests && hasAgents {
+		return "pull"
 	}
 
 	return "issues"

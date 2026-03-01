@@ -122,6 +122,10 @@ func (w *URLWriter) writeGitHubLongURL(ctx *types.ParseContext) (string, error) 
 
 	title = stripLeadingJiraKey(title)
 
+	if issueType == "" {
+		issueType = "issues"
+	}
+
 	if org == "" || repo == "" || title == "" || number == "" {
 		return ctx.OriginalInput, nil
 	}

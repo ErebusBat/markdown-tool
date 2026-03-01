@@ -270,6 +270,35 @@ ls-kyle-oliveira requested your review on this pull request.
 			expectedNumber: "250",
 		},
 		{
+			name: "GitHub PR with number line and leading space",
+			input: `dotswipely
+weekly_digest_email_pipeline
+Repository navigation
+Code
+Issues
+2
+ (2)
+Pull requests
+2
+ (2)
+Agents
+Actions
+Projects
+Wiki
+Security
+14
+ (14)
+Insights
+Settings
+Update list of merchants to validate against
+ #286`,
+			expectSuccess:  true,
+			expectedOrg:    "dotswipely",
+			expectedRepo:   "weekly_digest_email_pipeline",
+			expectedTitle:  "Update list of merchants to validate against",
+			expectedNumber: "286",
+		},
+		{
 			name: "Invalid input - no issue number",
 			input: `CompanyCam
 companycam-mobile
@@ -496,6 +525,10 @@ func TestGitHubLongParser_HelperFunctions(t *testing.T) {
 		{"Invalid - number not at end", "hasIssueTitleWithNumber", "Issue #123 with more text", false},
 		{"Invalid - no hash", "hasIssueTitleWithNumber", "Issue 123", false},
 
+		// hasStandaloneIssueNumberLine tests
+		{"Standalone issue number", "hasStandaloneIssueNumberLine", "#286", true},
+		{"Standalone issue number with leading space", "hasStandaloneIssueNumberLine", " #286", true},
+
 		// hasGitHubUsernamePrefix tests
 		{"Valid username prefix", "hasGitHubUsernamePrefix", "courtneylw adds blinc ddagent file #15407", true},
 		{"Valid username with underscore", "hasGitHubUsernamePrefix", "plat_188 adds blinc ddagent file #15407", true},
@@ -526,6 +559,8 @@ func TestGitHubLongParser_HelperFunctions(t *testing.T) {
 				result = isValidRepoName(tt.input)
 			case "hasIssueTitleWithNumber":
 				result = hasIssueTitleWithNumber(tt.input)
+			case "hasStandaloneIssueNumberLine":
+				result = hasStandaloneIssueNumberLine(tt.input)
 			case "hasGitHubUsernamePrefix":
 				result = hasGitHubUsernamePrefix(tt.input)
 			case "isGitHubUsername":

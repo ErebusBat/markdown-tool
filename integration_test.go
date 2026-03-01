@@ -18,7 +18,7 @@ func TestEndToEndTransformation(t *testing.T) {
 			DefaultOrg:  "CompanyCam",
 			DefaultRepo: "Company-Cam-API",
 			Mappings: map[string]string{
-				"companycam/company-cam-api": "CompanyCam/API",
+				"companycam/company-cam-api":   "CompanyCam/API",
 				"companycam/companycam-mobile": "CompanyCam/mobile",
 			},
 		},
@@ -173,6 +173,31 @@ Insights
 A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog #6549`,
 			expectedOutput: "[CompanyCam/mobile#6549: A specific Logger.error call in the SSO login workflow doesn't seem to log data to Datadog](https://github.com/CompanyCam/companycam-mobile/issues/6549)",
 		},
+		{
+			name: "GitHub Long format PR with split number",
+			input: `dotswipely
+weekly_digest_email_pipeline
+Repository navigation
+Code
+Issues
+2
+ (2)
+Pull requests
+2
+ (2)
+Agents
+Actions
+Projects
+Wiki
+Security
+14
+ (14)
+Insights
+Settings
+Update list of merchants to validate against
+ #286`,
+			expectedOutput: "[dotswipely/weekly_digest_email_pipeline#286: Update list of merchants to validate against](https://github.com/dotswipely/weekly_digest_email_pipeline/pull/286)",
+		},
 		// New GitHub issue transformation tests
 		{
 			name:           "Simple GitHub issue with default org/repo",
@@ -213,7 +238,7 @@ courtneylw adds blinc ddagent file #15407`,
 			expectedOutput: "[CompanyCam/API#15407: courtneylw adds blinc ddagent file](https://github.com/CompanyCam/Company-Cam-API/issues/15407)",
 		},
 		{
-			name: "GitHub UI without username in title", 
+			name: "GitHub UI without username in title",
 			input: `CompanyCam
 Company-Cam-API
 
@@ -266,7 +291,7 @@ This should not be transformed`,
 
 This should not be transformed`,
 		},
-		
+
 		// Phone number tests - 7-digit
 		{
 			name:           "7-digit phone plain",
@@ -283,7 +308,7 @@ This should not be transformed`,
 			input:          "123.4567",
 			expectedOutput: "📞 [123-4567](tel:1234567)",
 		},
-		
+
 		// Phone number tests - 10-digit
 		{
 			name:           "10-digit phone plain",
@@ -315,7 +340,7 @@ This should not be transformed`,
 			input:          "(890)1234567",
 			expectedOutput: "📞 [890-123-4567](tel:8901234567)",
 		},
-		
+
 		// Phone number tests - 11-digit US
 		{
 			name:           "11-digit US phone plain",
@@ -347,7 +372,7 @@ This should not be transformed`,
 			input:          "1(890)1234567",
 			expectedOutput: "📞 [1-890-123-4567](tel:+18901234567)",
 		},
-		
+
 		// Phone number tests - 11-digit international
 		{
 			name:           "11-digit international phone plain",
@@ -379,7 +404,7 @@ This should not be transformed`,
 			input:          "+7(890)1234567",
 			expectedOutput: "📞 [+7-890-123-4567](tel:+78901234567)",
 		},
-		
+
 		// Phone number non-matches (should pass through unchanged)
 		{
 			name:           "7-digit with space - no match",
@@ -426,7 +451,7 @@ This should not be transformed`,
 			input:          "(890)12345679",
 			expectedOutput: "(890)12345679",
 		},
-		
+
 		// Tel URI tests - should be preprocessed and handled by existing phone parsers
 		{
 			name:           "Tel URI 7-digit",
@@ -504,17 +529,17 @@ This should not be transformed`,
 func preprocessTelURIs(input string) string {
 	// Pattern to match tel: URIs
 	telPattern := regexp.MustCompile(`^tel:(.*)$`)
-	
+
 	matches := telPattern.FindStringSubmatch(strings.TrimSpace(input))
 	if matches != nil {
 		// Extract the phone number part after "tel:"
 		phoneNumber := matches[1]
-		
+
 		// Return the phone number without the tel: prefix
 		// This allows existing phone parsers to handle all supported formats
 		return phoneNumber
 	}
-	
+
 	return input
 }
 
@@ -522,7 +547,7 @@ func preprocessTelURIs(input string) string {
 func processInput(t *testing.T, cfg *types.Config, input string) string {
 	// Preprocess tel: URIs (same as in cmd/root.go)
 	input = preprocessTelURIs(input)
-	
+
 	// Parse input
 	parsers := parser.GetParsers(cfg)
 	contexts := make([]*types.ParseContext, 0)
