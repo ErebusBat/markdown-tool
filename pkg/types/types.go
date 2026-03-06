@@ -30,6 +30,7 @@ const (
 	ContentTypePhone11Digit
 	ContentTypeRaycastURI
 	ContentTypeOpenCodeSession
+	ContentTypeMiniMaxURL
 )
 
 // Parser interface for content detection and parsing

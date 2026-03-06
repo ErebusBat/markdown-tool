@@ -71,6 +71,10 @@ func (p *URLParser) Parse(input string) (*types.ParseContext, error) {
 		ctx.DetectedType = types.ContentTypeNotionURL
 		ctx.Confidence = 85
 		p.parseNotionURL(u, ctx)
+	case p.isMiniMaxURL(u):
+		ctx.DetectedType = types.ContentTypeMiniMaxURL
+		ctx.Confidence = 90
+		p.parseMiniMaxURL(u, ctx)
 	default:
 		ctx.DetectedType = types.ContentTypeURL
 		ctx.Confidence = 50
@@ -118,24 +122,35 @@ func (p *URLParser) isNotionURL(u *url.URL) bool {
 	return strings.Contains(u.Host, "notion.so")
 }
 
+func (p *URLParser) isMiniMaxURL(u *url.URL) bool {
+	return u.Host == "agent.minimax.io"
+}
+
+func (p *URLParser) parseMiniMaxURL(u *url.URL, ctx *types.ParseContext) {
+	chatID := u.Query().Get("id")
+	if chatID != "" {
+		ctx.Metadata["chat_id"] = chatID
+	}
+}
+
 func (p *URLParser) parseGitHubURL(u *url.URL, ctx *types.ParseContext) {
 	// Extract org/repo and optionally issue/PR number from GitHub URLs
-	// Path formats: 
+	// Path formats:
 	// - /org/repo (simple repository URL)
 	// - /org/repo/pull/123 or /org/repo/issues/123 (issue/PR URLs)
 	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
 	if len(parts) >= 2 {
 		org := parts[0]
 		repo := parts[1]
-		
+
 		ctx.Metadata["org"] = org
 		ctx.Metadata["repo"] = repo
-		
+
 		// If there are 4+ parts, extract issue/PR information
 		if len(parts) >= 4 {
 			issueType := parts[2] // "pull" or "issues"
 			number := parts[3]
-			
+
 			ctx.Metadata["type"] = issueType
 			ctx.Metadata["number"] = number
 		}
