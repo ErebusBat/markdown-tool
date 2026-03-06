@@ -35,5 +35,5 @@ func (w *OpenCodeSessionWriter) Write(ctx *types.ParseContext) (string, error) {
 		return ctx.OriginalInput, nil
 	}
 
-	return fmt.Sprintf("[🤖OpenCode](opencode://session/%s)", sessionToken), nil
+	return fmt.Sprintf("[🤖 OpenCode](opencode://session/%s)", sessionToken), nil
 }

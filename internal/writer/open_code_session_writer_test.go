@@ -60,7 +60,7 @@ func TestOpenCodeSessionWriter_Write(t *testing.T) {
 					"session_token": "ses_36a7950aeffesS4WjOsOMX8XTq",
 				},
 			},
-			expectedOutput: "[🤖OpenCode](opencode://session/ses_36a7950aeffesS4WjOsOMX8XTq)",
+			expectedOutput: "[🤖 OpenCode](opencode://session/ses_36a7950aeffesS4WjOsOMX8XTq)",
 		},
 		{
 			name: "Missing session token",
