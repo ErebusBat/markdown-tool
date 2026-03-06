@@ -20,7 +20,7 @@ func (p *RaycastParser) CanHandle(input string) bool {
 	if !strings.HasPrefix(input, "raycast://") {
 		return false
 	}
-	
+
 	// Verify it's a valid URI
 	_, err := url.Parse(input)
 	return err == nil

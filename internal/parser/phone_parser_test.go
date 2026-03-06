@@ -19,12 +19,12 @@ func TestPhoneParser_CanHandle(t *testing.T) {
 		{"7-digit plain", "1234567", true},
 		{"7-digit dash", "123-4567", true},
 		{"7-digit dot", "123.4567", true},
-		
+
 		// 7-digit non-matches
 		{"7-digit space", "123 4567", false},
 		{"7-digit comma", "123,4567", false},
 		{"7-digit leading zero", "01234567", false},
-		
+
 		// 10-digit matches
 		{"10-digit plain", "8901234567", true},
 		{"10-digit dash", "890-123-4567", true},
@@ -32,7 +32,7 @@ func TestPhoneParser_CanHandle(t *testing.T) {
 		{"10-digit parens space", "(890) 123-4567", true},
 		{"10-digit parens no space", "(890)123-4567", true},
 		{"10-digit parens plain", "(890)1234567", true},
-		
+
 		// 10-digit non-matches
 		{"10-digit extra digit", "89012345670", false},
 		{"10-digit spaces", "890 123 4567", false},
@@ -40,7 +40,7 @@ func TestPhoneParser_CanHandle(t *testing.T) {
 		{"10-digit mixed format", "(890) 1234 567", false},
 		{"10-digit incomplete", "(890)123-456", false},
 		{"10-digit too many", "(890)12345679", false},
-		
+
 		// 11-digit US matches
 		{"11-digit US plain", "18901234567", true},
 		{"11-digit US dash", "1-890-123-4567", true},
@@ -48,7 +48,7 @@ func TestPhoneParser_CanHandle(t *testing.T) {
 		{"11-digit US parens space", "1 (890) 123-4567", true},
 		{"11-digit US parens no space", "1(890)123-4567", true},
 		{"11-digit US parens plain", "1(890)1234567", true},
-		
+
 		// 11-digit international matches
 		{"11-digit intl plain", "+78901234567", true},
 		{"11-digit intl dash", "+7-890-123-4567", true},
@@ -56,7 +56,7 @@ func TestPhoneParser_CanHandle(t *testing.T) {
 		{"11-digit intl parens space", "+7 (890) 123-4567", true},
 		{"11-digit intl parens no space", "+7(890)123-4567", true},
 		{"11-digit intl parens plain", "+7(890)1234567", true},
-		
+
 		// Non-phone inputs
 		{"text", "hello world", false},
 		{"URL", "https://example.com", false},
@@ -80,13 +80,13 @@ func TestPhoneParser_Parse(t *testing.T) {
 	parser := NewPhoneParser(cfg)
 
 	tests := []struct {
-		name                 string
-		input                string
-		expectedType         types.ContentType
-		expectedConfidence   int
-		expectedDisplay      string
-		expectedTelURL       string
-		expectedIsExact      bool
+		name               string
+		input              string
+		expectedType       types.ContentType
+		expectedConfidence int
+		expectedDisplay    string
+		expectedTelURL     string
+		expectedIsExact    bool
 	}{
 		// 7-digit tests
 		{
@@ -116,7 +116,7 @@ func TestPhoneParser_Parse(t *testing.T) {
 			expectedTelURL:     "1234567",
 			expectedIsExact:    true,
 		},
-		
+
 		// 10-digit tests
 		{
 			name:               "10-digit plain exact",
@@ -172,7 +172,7 @@ func TestPhoneParser_Parse(t *testing.T) {
 			expectedTelURL:     "8901234567",
 			expectedIsExact:    true,
 		},
-		
+
 		// 11-digit US tests
 		{
 			name:               "11-digit US plain exact",
@@ -228,7 +228,7 @@ func TestPhoneParser_Parse(t *testing.T) {
 			expectedTelURL:     "+18901234567",
 			expectedIsExact:    true,
 		},
-		
+
 		// 11-digit international tests
 		{
 			name:               "11-digit intl plain exact",
@@ -375,24 +375,24 @@ func TestPhoneParser_InvalidFormats(t *testing.T) {
 
 	invalidInputs := []string{
 		// From the examples - these should NOT match
-		"123 4567",        // 7-digit with space
-		"123,4567",        // 7-digit with comma
-		"01234567",        // 7-digit with leading zero
-		"89012345670",     // 10-digit with extra digit
-		"890 123 4567",    // 10-digit with spaces
-		"(890) 123 4567",  // 10-digit mixed separators
-		"(890) 1234 567",  // 10-digit wrong grouping
-		"(890)123-456",    // 10-digit incomplete
-		"(890)12345679",   // 10-digit too many digits
-		
+		"123 4567",       // 7-digit with space
+		"123,4567",       // 7-digit with comma
+		"01234567",       // 7-digit with leading zero
+		"89012345670",    // 10-digit with extra digit
+		"890 123 4567",   // 10-digit with spaces
+		"(890) 123 4567", // 10-digit mixed separators
+		"(890) 1234 567", // 10-digit wrong grouping
+		"(890)123-456",   // 10-digit incomplete
+		"(890)12345679",  // 10-digit too many digits
+
 		// Other invalid formats
-		"",                // empty
-		"abc",             // text
-		"123-45-6789",     // SSN format
-		"12345",           // too short
-		"123456789012",    // too long
-		"+",               // just plus
-		"++1234567890",    // double plus
+		"",             // empty
+		"abc",          // text
+		"123-45-6789",  // SSN format
+		"12345",        // too short
+		"123456789012", // too long
+		"+",            // just plus
+		"++1234567890", // double plus
 	}
 
 	for _, input := range invalidInputs {

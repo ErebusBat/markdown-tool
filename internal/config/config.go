@@ -12,10 +12,10 @@ import (
 // Load loads configuration from file or creates default config
 func Load(configFile string) (*types.Config, error) {
 	// Create a new Viper instance with custom key delimiter to handle domain names with dots
-	// Using "::" instead of "." prevents domain names like "companycam.slack.com" 
+	// Using "::" instead of "." prevents domain names like "companycam.slack.com"
 	// from being interpreted as nested YAML structures
 	v := viper.NewWithOptions(viper.KeyDelimiter("::"))
-	
+
 	if configFile != "" {
 		v.SetConfigFile(configFile)
 	} else {

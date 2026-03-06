@@ -44,63 +44,63 @@ func TestURLParser_Parse_GitHub(t *testing.T) {
 	parser := NewURLParser(cfg)
 
 	tests := []struct {
-		name           string
-		input          string
-		expectedType   types.ContentType
-		expectedConf   int
-		expectedOrg    string
-		expectedRepo   string
-		expectedNumber string
+		name              string
+		input             string
+		expectedType      types.ContentType
+		expectedConf      int
+		expectedOrg       string
+		expectedRepo      string
+		expectedNumber    string
 		expectedIssueType string
 	}{
 		{
-			name:           "GitHub Pull Request",
-			input:          "https://github.com/CompanyCam/Company-Cam-API/pull/15217",
-			expectedType:   types.ContentTypeGitHubURL,
-			expectedConf:   90,
-			expectedOrg:    "CompanyCam",
-			expectedRepo:   "Company-Cam-API",
-			expectedNumber: "15217",
+			name:              "GitHub Pull Request",
+			input:             "https://github.com/CompanyCam/Company-Cam-API/pull/15217",
+			expectedType:      types.ContentTypeGitHubURL,
+			expectedConf:      90,
+			expectedOrg:       "CompanyCam",
+			expectedRepo:      "Company-Cam-API",
+			expectedNumber:    "15217",
 			expectedIssueType: "pull",
 		},
 		{
-			name:           "GitHub Issue",
-			input:          "https://github.com/CompanyCam/Company-Cam-API/issues/15217",
-			expectedType:   types.ContentTypeGitHubURL,
-			expectedConf:   90,
-			expectedOrg:    "CompanyCam",
-			expectedRepo:   "Company-Cam-API",
-			expectedNumber: "15217",
+			name:              "GitHub Issue",
+			input:             "https://github.com/CompanyCam/Company-Cam-API/issues/15217",
+			expectedType:      types.ContentTypeGitHubURL,
+			expectedConf:      90,
+			expectedOrg:       "CompanyCam",
+			expectedRepo:      "Company-Cam-API",
+			expectedNumber:    "15217",
 			expectedIssueType: "issues",
 		},
 		{
-			name:           "GitHub Repository",
-			input:          "https://github.com/pedropark99/zig-book",
-			expectedType:   types.ContentTypeGitHubURL,
-			expectedConf:   90,
-			expectedOrg:    "pedropark99",
-			expectedRepo:   "zig-book",
-			expectedNumber: "",
+			name:              "GitHub Repository",
+			input:             "https://github.com/pedropark99/zig-book",
+			expectedType:      types.ContentTypeGitHubURL,
+			expectedConf:      90,
+			expectedOrg:       "pedropark99",
+			expectedRepo:      "zig-book",
+			expectedNumber:    "",
 			expectedIssueType: "",
 		},
 		{
-			name:           "GitHub Commit Long Hash",
-			input:          "https://github.com/ErebusBat/markdown-tool/commit/aa062a602a02d33f4a6e7880809ac3609fe1417b",
-			expectedType:   types.ContentTypeGitHubURL,
-			expectedConf:   90,
-			expectedOrg:    "ErebusBat",
-			expectedRepo:   "markdown-tool",
-			expectedNumber: "aa062a602a02d33f4a6e7880809ac3609fe1417b",
+			name:              "GitHub Commit Long Hash",
+			input:             "https://github.com/ErebusBat/markdown-tool/commit/aa062a602a02d33f4a6e7880809ac3609fe1417b",
+			expectedType:      types.ContentTypeGitHubURL,
+			expectedConf:      90,
+			expectedOrg:       "ErebusBat",
+			expectedRepo:      "markdown-tool",
+			expectedNumber:    "aa062a602a02d33f4a6e7880809ac3609fe1417b",
 			expectedIssueType: "commit",
 		},
 		{
-			name:           "GitHub Commit Short Hash",
-			input:          "https://github.com/CompanyCam/Company-Cam-API/commit/abc123",
-			expectedType:   types.ContentTypeGitHubURL,
-			expectedConf:   90,
-			expectedOrg:    "CompanyCam",
-			expectedRepo:   "Company-Cam-API",
-			expectedNumber: "abc123",
+			name:              "GitHub Commit Short Hash",
+			input:             "https://github.com/CompanyCam/Company-Cam-API/commit/abc123",
+			expectedType:      types.ContentTypeGitHubURL,
+			expectedConf:      90,
+			expectedOrg:       "CompanyCam",
+			expectedRepo:      "Company-Cam-API",
+			expectedNumber:    "abc123",
 			expectedIssueType: "commit",
 		},
 	}

@@ -106,14 +106,14 @@ func TestRaycastParser_Parse(t *testing.T) {
 			shouldParse:    true,
 		},
 		{
-			name:           "Non-Raycast URI",
-			input:          "https://example.com",
-			shouldParse:    false,
+			name:        "Non-Raycast URI",
+			input:       "https://example.com",
+			shouldParse: false,
 		},
 		{
-			name:           "Plain text",
-			input:          "not a URI",
-			shouldParse:    false,
+			name:        "Plain text",
+			input:       "not a URI",
+			shouldParse: false,
 		},
 	}
 

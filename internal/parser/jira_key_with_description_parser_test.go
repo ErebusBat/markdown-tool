@@ -48,8 +48,8 @@ blinc - webhook proxy logs`,
 			expected: false,
 		},
 		{
-			name: "Invalid - simple JIRA key only",
-			input: "PLAT-12345",
+			name:     "Invalid - simple JIRA key only",
+			input:    "PLAT-12345",
 			expected: false,
 		},
 		{
@@ -67,8 +67,8 @@ description`,
 			expected: false,
 		},
 		{
-			name: "Empty string",
-			input: "",
+			name:     "Empty string",
+			input:    "",
 			expected: false,
 		},
 	}

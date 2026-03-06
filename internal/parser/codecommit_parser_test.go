@@ -30,8 +30,8 @@ Pull requests
 			expected: true,
 		},
 		{
-			name: "Short URL only",
-			input: "https://us-east-1.console.aws.amazon.com/codesuite/codecommit/repositories/upserve-env/pull-requests/411/details?region=us-east-1",
+			name:     "Short URL only",
+			input:    "https://us-east-1.console.aws.amazon.com/codesuite/codecommit/repositories/upserve-env/pull-requests/411/details?region=us-east-1",
 			expected: false,
 		},
 		{

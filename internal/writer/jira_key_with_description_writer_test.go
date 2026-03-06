@@ -143,7 +143,7 @@ func TestJIRAKeyWithDescriptionWriter_Write(t *testing.T) {
 func TestJIRAKeyWithDescriptionWriter_GetName(t *testing.T) {
 	cfg := &types.Config{}
 	writer := NewJIRAKeyWithDescriptionWriter(cfg)
-	
+
 	expected := "JIRAKeyWithDescriptionWriter"
 	if name := writer.GetName(); name != expected {
 		t.Errorf("GetName() = %v, want %v", name, expected)

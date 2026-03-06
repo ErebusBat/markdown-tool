@@ -17,7 +17,7 @@ func NewJIRAKeyWithDescriptionParser(cfg *types.Config) *JIRAKeyWithDescriptionP
 
 func (p *JIRAKeyWithDescriptionParser) CanHandle(input string) bool {
 	lines := strings.Split(strings.TrimSpace(input), "\n")
-	
+
 	// Must have at least 3 lines: JIRA key, empty line, description
 	if len(lines) < 3 {
 		return false
@@ -54,10 +54,10 @@ func (p *JIRAKeyWithDescriptionParser) Parse(input string) (*types.ParseContext,
 	}
 
 	lines := strings.Split(strings.TrimSpace(input), "\n")
-	
+
 	// Extract JIRA key from first line
 	jiraKey := strings.TrimSpace(lines[0])
-	
+
 	// Extract project key
 	parts := strings.Split(jiraKey, "-")
 	if len(parts) < 2 {

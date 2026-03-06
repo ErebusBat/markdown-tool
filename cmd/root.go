@@ -68,7 +68,7 @@ func run() error {
 
 	// Preprocess tel: URIs to phone numbers
 	input = preprocessTelURIs(input)
-	
+
 	// Check again if input is empty after preprocessing
 	if input == "" {
 		return nil // No input after preprocessing
@@ -133,16 +133,16 @@ func getInput() (string, error) {
 func preprocessTelURIs(input string) string {
 	// Pattern to match tel: URIs
 	telPattern := regexp.MustCompile(`^tel:(.*)$`)
-	
+
 	matches := telPattern.FindStringSubmatch(strings.TrimSpace(input))
 	if matches != nil {
 		// Extract the phone number part after "tel:"
 		phoneNumber := matches[1]
-		
+
 		// Return the phone number without the tel: prefix
 		// This allows existing phone parsers to handle all supported formats
 		return phoneNumber
 	}
-	
+
 	return input
 }
