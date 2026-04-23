@@ -31,6 +31,7 @@ const (
 	ContentTypeRaycastURI
 	ContentTypeOpenCodeSession
 	ContentTypeMiniMaxURL
+	ContentTypeGeminiURL
 )
 
 // Parser interface for content detection and parsing

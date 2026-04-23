@@ -108,6 +108,11 @@ func TestEndToEndTransformation(t *testing.T) {
 			expectedOutput: "[VS Code Setup for Standard rb RubyLSP](https://www.notion.so/companycam/VS-Code-Setup-for-Standard-rb-RubyLSP-654a6b070ae74ac3ad400c6d571507c0)",
 		},
 		{
+			name:           "Gemini Chat URL",
+			input:          "https://gemini.google.com/app/ac9ebc9d76c30fc1",
+			expectedOutput: "[🤖 Gemini Chat](https://gemini.google.com/app/ac9ebc9d76c30fc1)",
+		},
+		{
 			name:           "Generic URL",
 			input:          "http://ww3.domain.tld/path/to/document?query=value#anchor",
 			expectedOutput: "[domain.tld](http://ww3.domain.tld/path/to/document?query=value#anchor)",

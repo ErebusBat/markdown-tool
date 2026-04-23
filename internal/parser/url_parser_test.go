@@ -399,3 +399,80 @@ func TestURLParser_Parse_Generic(t *testing.T) {
 		t.Errorf("Metadata[domain] = %v, want %v", domain, expectedDomain)
 	}
 }
+
+func TestURLParser_Parse_Gemini(t *testing.T) {
+	cfg := &types.Config{}
+	p := NewURLParser(cfg)
+
+	tests := []struct {
+		name             string
+		input            string
+		expectedType     types.ContentType
+		expectedConf     int
+		expectedChatID   string
+		expectedCleanURL string
+	}{
+		{
+			name:             "Gemini chat URL",
+			input:            "https://gemini.google.com/app/ac9ebc9d76c30fc1",
+			expectedType:     types.ContentTypeGeminiURL,
+			expectedConf:     90,
+			expectedChatID:   "ac9ebc9d76c30fc1",
+			expectedCleanURL: "https://gemini.google.com/app/ac9ebc9d76c30fc1",
+		},
+		{
+			name:             "Gemini chat URL with different ID",
+			input:            "https://gemini.google.com/app/abcdef123456",
+			expectedType:     types.ContentTypeGeminiURL,
+			expectedConf:     90,
+			expectedChatID:   "abcdef123456",
+			expectedCleanURL: "https://gemini.google.com/app/abcdef123456",
+		},
+		{
+			name:             "Gemini chat URL with trailing arrow",
+			input:            "https://gemini.google.com/app/ac9ebc9d76c30fc1 →",
+			expectedType:     types.ContentTypeGeminiURL,
+			expectedConf:     90,
+			expectedChatID:   "ac9ebc9d76c30fc1",
+			expectedCleanURL: "https://gemini.google.com/app/ac9ebc9d76c30fc1",
+		},
+		{
+			name:         "Gemini root URL is not a chat",
+			input:        "https://gemini.google.com/app",
+			expectedType: types.ContentTypeURL,
+			expectedConf: 50,
+		},
+		{
+			name:         "Gemini non-app URL is generic",
+			input:        "https://gemini.google.com/about",
+			expectedType: types.ContentTypeURL,
+			expectedConf: 50,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, err := p.Parse(tt.input)
+			if err != nil {
+				t.Fatalf("Parse() error = %v", err)
+			}
+			if ctx == nil {
+				t.Fatal("Parse() returned nil context")
+			}
+			if ctx.DetectedType != tt.expectedType {
+				t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, tt.expectedType)
+			}
+			if ctx.Confidence != tt.expectedConf {
+				t.Errorf("Confidence = %v, want %v", ctx.Confidence, tt.expectedConf)
+			}
+			if tt.expectedChatID != "" {
+				if chatID := ctx.Metadata["chat_id"]; chatID != tt.expectedChatID {
+					t.Errorf("Metadata[chat_id] = %v, want %v", chatID, tt.expectedChatID)
+				}
+				if cleanURL := ctx.Metadata["clean_url"]; cleanURL != tt.expectedCleanURL {
+					t.Errorf("Metadata[clean_url] = %v, want %v", cleanURL, tt.expectedCleanURL)
+				}
+			}
+		})
+	}
+}

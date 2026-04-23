@@ -25,6 +25,7 @@ func TestURLWriter_Vote(t *testing.T) {
 		{"CodeCommit Long", types.ContentTypeCodeCommitLong, 95},
 		{"Notion URL", types.ContentTypeNotionURL, 85},
 		{"Generic URL", types.ContentTypeURL, 50},
+		{"Gemini URL", types.ContentTypeGeminiURL, 90},
 		{"JIRA Key", types.ContentTypeJIRAKey, 0},
 		{"Unknown", types.ContentTypeUnknown, 0},
 	}
@@ -720,6 +721,62 @@ func TestURLWriter_WriteCodeCommitLongURL(t *testing.T) {
 				t.Fatalf("Write() error = %v", err)
 			}
 
+			if output != tt.expectedOutput {
+				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
+			}
+		})
+	}
+}
+
+func TestURLWriter_WriteGeminiURL(t *testing.T) {
+	cfg := &types.Config{}
+	writer := NewURLWriter(cfg)
+
+	tests := []struct {
+		name           string
+		originalInput  string
+		metadata       map[string]interface{}
+		expectedOutput string
+	}{
+		{
+			name:          "Gemini chat URL",
+			originalInput: "https://gemini.google.com/app/ac9ebc9d76c30fc1",
+			metadata: map[string]interface{}{
+				"chat_id": "ac9ebc9d76c30fc1",
+			},
+			expectedOutput: "[🤖 Gemini Chat](https://gemini.google.com/app/ac9ebc9d76c30fc1)",
+		},
+		{
+			name:          "Gemini chat URL with different ID",
+			originalInput: "https://gemini.google.com/app/abcdef123456",
+			metadata: map[string]interface{}{
+				"chat_id": "abcdef123456",
+			},
+			expectedOutput: "[🤖 Gemini Chat](https://gemini.google.com/app/abcdef123456)",
+		},
+		{
+			name:          "Gemini chat URL with trailing arrow uses clean_url",
+			originalInput: "https://gemini.google.com/app/ac9ebc9d76c30fc1 →",
+			metadata: map[string]interface{}{
+				"chat_id":   "ac9ebc9d76c30fc1",
+				"clean_url": "https://gemini.google.com/app/ac9ebc9d76c30fc1",
+			},
+			expectedOutput: "[🤖 Gemini Chat](https://gemini.google.com/app/ac9ebc9d76c30fc1)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := &types.ParseContext{
+				OriginalInput: tt.originalInput,
+				DetectedType:  types.ContentTypeGeminiURL,
+				Metadata:      tt.metadata,
+			}
+
+			output, err := writer.Write(ctx)
+			if err != nil {
+				t.Fatalf("Write() error = %v", err)
+			}
 			if output != tt.expectedOutput {
 				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
 			}

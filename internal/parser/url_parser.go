@@ -75,6 +75,10 @@ func (p *URLParser) Parse(input string) (*types.ParseContext, error) {
 		ctx.DetectedType = types.ContentTypeMiniMaxURL
 		ctx.Confidence = 90
 		p.parseMiniMaxURL(u, ctx)
+	case p.isGeminiURL(u):
+		ctx.DetectedType = types.ContentTypeGeminiURL
+		ctx.Confidence = 90
+		p.parseGeminiURL(u, ctx)
 	default:
 		ctx.DetectedType = types.ContentTypeURL
 		ctx.Confidence = 50
@@ -124,6 +128,24 @@ func (p *URLParser) isNotionURL(u *url.URL) bool {
 
 func (p *URLParser) isMiniMaxURL(u *url.URL) bool {
 	return u.Host == "agent.minimax.io"
+}
+
+func (p *URLParser) isGeminiURL(u *url.URL) bool {
+	return u.Host == "gemini.google.com" && strings.HasPrefix(u.Path, "/app/")
+}
+
+func (p *URLParser) parseGeminiURL(u *url.URL, ctx *types.ParseContext) {
+	re := regexp.MustCompile(`/app/([a-f0-9]+)`)
+	matches := re.FindStringSubmatch(u.Path)
+	if len(matches) > 1 {
+		ctx.Metadata["chat_id"] = matches[1]
+		cleanURL := &url.URL{
+			Scheme: u.Scheme,
+			Host:   u.Host,
+			Path:   "/app/" + matches[1],
+		}
+		ctx.Metadata["clean_url"] = cleanURL.String()
+	}
 }
 
 func (p *URLParser) parseMiniMaxURL(u *url.URL, ctx *types.ParseContext) {

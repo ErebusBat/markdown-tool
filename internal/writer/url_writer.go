@@ -43,6 +43,8 @@ func (w *URLWriter) Vote(ctx *types.ParseContext) int {
 		return 85
 	case types.ContentTypeMiniMaxURL:
 		return 90
+	case types.ContentTypeGeminiURL:
+		return 90
 	case types.ContentTypeURL:
 		return 50
 	default:
@@ -72,6 +74,8 @@ func (w *URLWriter) Write(ctx *types.ParseContext) (string, error) {
 		return w.writeNotionURL(ctx)
 	case types.ContentTypeMiniMaxURL:
 		return w.writeMiniMaxURL(ctx)
+	case types.ContentTypeGeminiURL:
+		return w.writeGeminiURL(ctx)
 	case types.ContentTypeURL:
 		return w.writeGenericURL(ctx)
 	default:
@@ -213,6 +217,14 @@ func (w *URLWriter) writeNotionURL(ctx *types.ParseContext) (string, error) {
 func (w *URLWriter) writeMiniMaxURL(ctx *types.ParseContext) (string, error) {
 	linkText := "🤖 MiniMax.io"
 	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
+}
+
+func (w *URLWriter) writeGeminiURL(ctx *types.ParseContext) (string, error) {
+	cleanURL, _ := ctx.Metadata["clean_url"].(string)
+	if cleanURL == "" {
+		cleanURL = ctx.OriginalInput
+	}
+	return fmt.Sprintf("[🤖 Gemini Chat](%s)", cleanURL), nil
 }
 
 func (w *URLWriter) writeCodeCommitURL(ctx *types.ParseContext) (string, error) {
