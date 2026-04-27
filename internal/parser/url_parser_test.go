@@ -400,6 +400,63 @@ func TestURLParser_Parse_Generic(t *testing.T) {
 	}
 }
 
+func TestURLParser_Parse_ChatGPT(t *testing.T) {
+	cfg := &types.Config{}
+	p := NewURLParser(cfg)
+
+	tests := []struct {
+		name           string
+		input          string
+		expectedType   types.ContentType
+		expectedConf   int
+		expectedChatID string
+	}{
+		{
+			name:           "ChatGPT chat URL",
+			input:          "https://chatgpt.com/c/69efd1c6-a230-83e8-8778-5dc7754dcdd3",
+			expectedType:   types.ContentTypeChatGPT,
+			expectedConf:   90,
+			expectedChatID: "69efd1c6-a230-83e8-8778-5dc7754dcdd3",
+		},
+		{
+			name:           "ChatGPT chat URL with different ID",
+			input:          "https://chatgpt.com/c/abc123de-4567-89ab-cdef-0123456789ab",
+			expectedType:   types.ContentTypeChatGPT,
+			expectedConf:   90,
+			expectedChatID: "abc123de-4567-89ab-cdef-0123456789ab",
+		},
+		{
+			name:         "ChatGPT root URL is not a chat",
+			input:        "https://chatgpt.com/",
+			expectedType: types.ContentTypeURL,
+			expectedConf: 50,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, err := p.Parse(tt.input)
+			if err != nil {
+				t.Fatalf("Parse() error = %v", err)
+			}
+			if ctx == nil {
+				t.Fatal("Parse() returned nil context")
+			}
+			if ctx.DetectedType != tt.expectedType {
+				t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, tt.expectedType)
+			}
+			if ctx.Confidence != tt.expectedConf {
+				t.Errorf("Confidence = %v, want %v", ctx.Confidence, tt.expectedConf)
+			}
+			if tt.expectedChatID != "" {
+				if chatID := ctx.Metadata["chat_id"]; chatID != tt.expectedChatID {
+					t.Errorf("Metadata[chat_id] = %v, want %v", chatID, tt.expectedChatID)
+				}
+			}
+		})
+	}
+}
+
 func TestURLParser_Parse_CircleCI(t *testing.T) {
 	cfg := &types.Config{}
 	p := NewURLParser(cfg)

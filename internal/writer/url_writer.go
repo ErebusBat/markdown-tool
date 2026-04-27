@@ -47,6 +47,8 @@ func (w *URLWriter) Vote(ctx *types.ParseContext) int {
 		return 90
 	case types.ContentTypeCircleCI:
 		return 90
+	case types.ContentTypeChatGPT:
+		return 90
 	case types.ContentTypeURL:
 		return 50
 	default:
@@ -80,6 +82,8 @@ func (w *URLWriter) Write(ctx *types.ParseContext) (string, error) {
 		return w.writeGeminiURL(ctx)
 	case types.ContentTypeCircleCI:
 		return w.writeCircleCIURL(ctx)
+	case types.ContentTypeChatGPT:
+		return w.writeChatGPTURL(ctx)
 	case types.ContentTypeURL:
 		return w.writeGenericURL(ctx)
 	default:
@@ -242,6 +246,10 @@ func (w *URLWriter) writeCircleCIURL(ctx *types.ParseContext) (string, error) {
 
 	linkText := fmt.Sprintf("🏗️ CircleCI %s/%s#%s", org, repo, pipelineNumber)
 	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
+}
+
+func (w *URLWriter) writeChatGPTURL(ctx *types.ParseContext) (string, error) {
+	return fmt.Sprintf("[🤖 ChatGPT](%s)", ctx.OriginalInput), nil
 }
 
 func (w *URLWriter) writeCodeCommitURL(ctx *types.ParseContext) (string, error) {

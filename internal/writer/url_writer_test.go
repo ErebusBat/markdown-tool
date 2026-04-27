@@ -27,6 +27,7 @@ func TestURLWriter_Vote(t *testing.T) {
 		{"Generic URL", types.ContentTypeURL, 50},
 		{"Gemini URL", types.ContentTypeGeminiURL, 90},
 		{"CircleCI URL", types.ContentTypeCircleCI, 90},
+		{"ChatGPT URL", types.ContentTypeChatGPT, 90},
 		{"JIRA Key", types.ContentTypeJIRAKey, 0},
 		{"Unknown", types.ContentTypeUnknown, 0},
 	}
@@ -776,6 +777,46 @@ func TestURLWriter_WriteCircleCIURL(t *testing.T) {
 				OriginalInput: tt.originalInput,
 				DetectedType:  types.ContentTypeCircleCI,
 				Metadata:      tt.metadata,
+			}
+
+			output, err := writer.Write(ctx)
+			if err != nil {
+				t.Fatalf("Write() error = %v", err)
+			}
+			if output != tt.expectedOutput {
+				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
+			}
+		})
+	}
+}
+
+func TestURLWriter_WriteChatGPTURL(t *testing.T) {
+	cfg := &types.Config{}
+	writer := NewURLWriter(cfg)
+
+	tests := []struct {
+		name           string
+		originalInput  string
+		expectedOutput string
+	}{
+		{
+			name:          "ChatGPT chat URL",
+			originalInput: "https://chatgpt.com/c/69efd1c6-a230-83e8-8778-5dc7754dcdd3",
+			expectedOutput: "[🤖 ChatGPT](https://chatgpt.com/c/69efd1c6-a230-83e8-8778-5dc7754dcdd3)",
+		},
+		{
+			name:          "ChatGPT chat URL with different ID",
+			originalInput: "https://chatgpt.com/c/abc123de-4567-89ab-cdef-0123456789ab",
+			expectedOutput: "[🤖 ChatGPT](https://chatgpt.com/c/abc123de-4567-89ab-cdef-0123456789ab)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := &types.ParseContext{
+				OriginalInput: tt.originalInput,
+				DetectedType:  types.ContentTypeChatGPT,
+				Metadata:      map[string]interface{}{},
 			}
 
 			output, err := writer.Write(ctx)

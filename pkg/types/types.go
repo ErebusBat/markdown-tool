@@ -34,6 +34,7 @@ const (
 	ContentTypeGeminiURL
 	ContentTypeCodexThread
 	ContentTypeCircleCI
+	ContentTypeChatGPT
 )
 
 // Parser interface for content detection and parsing

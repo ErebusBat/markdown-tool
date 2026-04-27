@@ -83,6 +83,10 @@ func (p *URLParser) Parse(input string) (*types.ParseContext, error) {
 		ctx.DetectedType = types.ContentTypeCircleCI
 		ctx.Confidence = 90
 		p.parseCircleCIURL(u, ctx)
+	case p.isChatGPTURL(u):
+		ctx.DetectedType = types.ContentTypeChatGPT
+		ctx.Confidence = 90
+		p.parseChatGPTURL(u, ctx)
 	default:
 		ctx.DetectedType = types.ContentTypeURL
 		ctx.Confidence = 50
@@ -136,6 +140,19 @@ func (p *URLParser) isMiniMaxURL(u *url.URL) bool {
 
 func (p *URLParser) isGeminiURL(u *url.URL) bool {
 	return u.Host == "gemini.google.com" && strings.HasPrefix(u.Path, "/app/")
+}
+
+func (p *URLParser) isChatGPTURL(u *url.URL) bool {
+	return u.Host == "chatgpt.com" && len(u.Path) >= 3 && strings.HasPrefix(u.Path, "/c/")
+}
+
+func (p *URLParser) parseChatGPTURL(u *url.URL, ctx *types.ParseContext) {
+	// Extract chat ID from /c/{id}
+	re := regexp.MustCompile(`^/c/([a-f0-9\-]+)`)
+	matches := re.FindStringSubmatch(u.Path)
+	if len(matches) > 1 {
+		ctx.Metadata["chat_id"] = matches[1]
+	}
 }
 
 func (p *URLParser) isCircleCIURL(u *url.URL) bool {
