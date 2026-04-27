@@ -32,6 +32,7 @@ const (
 	ContentTypeOpenCodeSession
 	ContentTypeMiniMaxURL
 	ContentTypeGeminiURL
+	ContentTypeCodexThread
 )
 
 // Parser interface for content detection and parsing

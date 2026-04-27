@@ -518,6 +518,11 @@ This should not be transformed`,
 			input:          "raycast://extensions/raycast/window-management/center",
 			expectedOutput: "[Raycast](raycast://extensions/raycast/window-management/center)",
 		},
+		{
+			name:           "Codex thread URI",
+			input:          "codex://threads/019dcc44-e7b8-7c23-816c-34c194bdb3cf",
+			expectedOutput: "[🤖 Codex](codex://threads/019dcc44-e7b8-7c23-816c-34c194bdb3cf)",
+		},
 	}
 
 	for _, tt := range tests {

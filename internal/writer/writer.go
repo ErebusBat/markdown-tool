@@ -13,6 +13,7 @@ func GetWriters(cfg *types.Config) []types.Writer {
 		NewPhoneWriter(cfg),
 		NewRaycastWriter(cfg),
 		NewOpenCodeSessionWriter(cfg),
+		NewCodexWriter(cfg),
 		NewPassthroughWriter(),
 	}
 }
