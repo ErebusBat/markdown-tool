@@ -400,6 +400,79 @@ func TestURLParser_Parse_Generic(t *testing.T) {
 	}
 }
 
+func TestURLParser_Parse_CircleCI(t *testing.T) {
+	cfg := &types.Config{}
+	p := NewURLParser(cfg)
+
+	tests := []struct {
+		name              string
+		input             string
+		expectedType      types.ContentType
+		expectedConf      int
+		expectedVCS       string
+		expectedOrg       string
+		expectedRepo      string
+		expectedPipeline  string
+		expectedWorkflow  string
+	}{
+		{
+			name:             "CircleCI pipeline URL",
+			input:            "https://app.circleci.com/pipelines/github/upserve/swipely/96/workflows/17abd9c6-1190-49e9-a05f-4bf992a9d611",
+			expectedType:     types.ContentTypeCircleCI,
+			expectedConf:     90,
+			expectedVCS:      "github",
+			expectedOrg:      "upserve",
+			expectedRepo:     "swipely",
+			expectedPipeline: "96",
+			expectedWorkflow: "17abd9c6-1190-49e9-a05f-4bf992a9d611",
+		},
+		{
+			name:             "CircleCI with different org and repo",
+			input:            "https://app.circleci.com/pipelines/github/CompanyCam/Company-Cam-API/15217/workflows/abc123de-4567-89ab-cdef-0123456789ab",
+			expectedType:     types.ContentTypeCircleCI,
+			expectedConf:     90,
+			expectedVCS:      "github",
+			expectedOrg:      "CompanyCam",
+			expectedRepo:     "Company-Cam-API",
+			expectedPipeline: "15217",
+			expectedWorkflow: "abc123de-4567-89ab-cdef-0123456789ab",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, err := p.Parse(tt.input)
+			if err != nil {
+				t.Fatalf("Parse() error = %v", err)
+			}
+			if ctx == nil {
+				t.Fatal("Parse() returned nil context")
+			}
+			if ctx.DetectedType != tt.expectedType {
+				t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, tt.expectedType)
+			}
+			if ctx.Confidence != tt.expectedConf {
+				t.Errorf("Confidence = %v, want %v", ctx.Confidence, tt.expectedConf)
+			}
+			if vcs := ctx.Metadata["vcs"]; vcs != tt.expectedVCS {
+				t.Errorf("Metadata[vcs] = %v, want %v", vcs, tt.expectedVCS)
+			}
+			if org := ctx.Metadata["org"]; org != tt.expectedOrg {
+				t.Errorf("Metadata[org] = %v, want %v", org, tt.expectedOrg)
+			}
+			if repo := ctx.Metadata["repo"]; repo != tt.expectedRepo {
+				t.Errorf("Metadata[repo] = %v, want %v", repo, tt.expectedRepo)
+			}
+			if pipeline := ctx.Metadata["pipeline_number"]; pipeline != tt.expectedPipeline {
+				t.Errorf("Metadata[pipeline_number] = %v, want %v", pipeline, tt.expectedPipeline)
+			}
+			if workflow := ctx.Metadata["workflow_id"]; workflow != tt.expectedWorkflow {
+				t.Errorf("Metadata[workflow_id] = %v, want %v", workflow, tt.expectedWorkflow)
+			}
+		})
+	}
+}
+
 func TestURLParser_Parse_Gemini(t *testing.T) {
 	cfg := &types.Config{}
 	p := NewURLParser(cfg)

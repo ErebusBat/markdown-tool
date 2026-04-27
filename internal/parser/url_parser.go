@@ -79,6 +79,10 @@ func (p *URLParser) Parse(input string) (*types.ParseContext, error) {
 		ctx.DetectedType = types.ContentTypeGeminiURL
 		ctx.Confidence = 90
 		p.parseGeminiURL(u, ctx)
+	case p.isCircleCIURL(u):
+		ctx.DetectedType = types.ContentTypeCircleCI
+		ctx.Confidence = 90
+		p.parseCircleCIURL(u, ctx)
 	default:
 		ctx.DetectedType = types.ContentTypeURL
 		ctx.Confidence = 50
@@ -132,6 +136,36 @@ func (p *URLParser) isMiniMaxURL(u *url.URL) bool {
 
 func (p *URLParser) isGeminiURL(u *url.URL) bool {
 	return u.Host == "gemini.google.com" && strings.HasPrefix(u.Path, "/app/")
+}
+
+func (p *URLParser) isCircleCIURL(u *url.URL) bool {
+	return u.Host == "app.circleci.com" &&
+		strings.HasPrefix(u.Path, "/pipelines/") &&
+		strings.Contains(u.Path, "/workflows/")
+}
+
+func (p *URLParser) parseCircleCIURL(u *url.URL, ctx *types.ParseContext) {
+	// Path format: /pipelines/{vcs}/{org}/{repo}/{pipeline_number}/workflows/{workflow_id}
+	re := regexp.MustCompile(`^/pipelines/([^/]+)/([^/]+)/([^/]+)/(\d+)/workflows/`)
+	matches := re.FindStringSubmatch(u.Path)
+	if len(matches) > 4 {
+		ctx.Metadata["vcs"] = matches[1]
+		ctx.Metadata["org"] = matches[2]
+		ctx.Metadata["repo"] = matches[3]
+		ctx.Metadata["pipeline_number"] = matches[4]
+	}
+
+	// Extract workflow ID (UUID after /workflows/)
+	reWorkflow := regexp.MustCompile(`/workflows/([a-f0-9\-]+)`)
+	workflowMatches := reWorkflow.FindStringSubmatch(u.Path)
+	if len(workflowMatches) > 1 {
+		ctx.Metadata["workflow_id"] = workflowMatches[1]
+	}
+
+	// Ensure pipeline_number is stored as string for consistency
+	if _, ok := ctx.Metadata["pipeline_number"]; !ok {
+		return
+	}
 }
 
 func (p *URLParser) parseGeminiURL(u *url.URL, ctx *types.ParseContext) {

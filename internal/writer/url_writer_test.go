@@ -26,6 +26,7 @@ func TestURLWriter_Vote(t *testing.T) {
 		{"Notion URL", types.ContentTypeNotionURL, 85},
 		{"Generic URL", types.ContentTypeURL, 50},
 		{"Gemini URL", types.ContentTypeGeminiURL, 90},
+		{"CircleCI URL", types.ContentTypeCircleCI, 90},
 		{"JIRA Key", types.ContentTypeJIRAKey, 0},
 		{"Unknown", types.ContentTypeUnknown, 0},
 	}
@@ -721,6 +722,66 @@ func TestURLWriter_WriteCodeCommitLongURL(t *testing.T) {
 				t.Fatalf("Write() error = %v", err)
 			}
 
+			if output != tt.expectedOutput {
+				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
+			}
+		})
+	}
+}
+
+func TestURLWriter_WriteCircleCIURL(t *testing.T) {
+	cfg := &types.Config{}
+	writer := NewURLWriter(cfg)
+
+	tests := []struct {
+		name           string
+		originalInput  string
+		metadata       map[string]interface{}
+		expectedOutput string
+	}{
+		{
+			name:          "CircleCI pipeline URL",
+			originalInput: "https://app.circleci.com/pipelines/github/upserve/swipely/96/workflows/17abd9c6-1190-49e9-a05f-4bf992a9d611",
+			metadata: map[string]interface{}{
+				"org":            "upserve",
+				"repo":           "swipely",
+				"pipeline_number": "96",
+			},
+			expectedOutput: "[🏗️ CircleCI upserve/swipely#96](https://app.circleci.com/pipelines/github/upserve/swipely/96/workflows/17abd9c6-1190-49e9-a05f-4bf992a9d611)",
+		},
+		{
+			name:          "CircleCI different org and repo",
+			originalInput: "https://app.circleci.com/pipelines/github/CompanyCam/Company-Cam-API/15217/workflows/abc123de-4567-89ab-cdef-0123456789ab",
+			metadata: map[string]interface{}{
+				"org":            "CompanyCam",
+				"repo":           "Company-Cam-API",
+				"pipeline_number": "15217",
+			},
+			expectedOutput: "[🏗️ CircleCI CompanyCam/Company-Cam-API#15217](https://app.circleci.com/pipelines/github/CompanyCam/Company-Cam-API/15217/workflows/abc123de-4567-89ab-cdef-0123456789ab)",
+		},
+		{
+			name:          "CircleCI missing pipeline number falls back to generic",
+			originalInput: "https://app.circleci.com/pipelines/github/upserve/swipely",
+			metadata: map[string]interface{}{
+				"org":  "upserve",
+				"repo": "swipely",
+			},
+			expectedOutput: "[app.circleci.com](https://app.circleci.com/pipelines/github/upserve/swipely)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := &types.ParseContext{
+				OriginalInput: tt.originalInput,
+				DetectedType:  types.ContentTypeCircleCI,
+				Metadata:      tt.metadata,
+			}
+
+			output, err := writer.Write(ctx)
+			if err != nil {
+				t.Fatalf("Write() error = %v", err)
+			}
 			if output != tt.expectedOutput {
 				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
 			}

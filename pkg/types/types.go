@@ -33,6 +33,7 @@ const (
 	ContentTypeMiniMaxURL
 	ContentTypeGeminiURL
 	ContentTypeCodexThread
+	ContentTypeCircleCI
 )
 
 // Parser interface for content detection and parsing

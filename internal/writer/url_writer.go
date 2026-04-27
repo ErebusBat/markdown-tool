@@ -45,6 +45,8 @@ func (w *URLWriter) Vote(ctx *types.ParseContext) int {
 		return 90
 	case types.ContentTypeGeminiURL:
 		return 90
+	case types.ContentTypeCircleCI:
+		return 90
 	case types.ContentTypeURL:
 		return 50
 	default:
@@ -76,6 +78,8 @@ func (w *URLWriter) Write(ctx *types.ParseContext) (string, error) {
 		return w.writeMiniMaxURL(ctx)
 	case types.ContentTypeGeminiURL:
 		return w.writeGeminiURL(ctx)
+	case types.ContentTypeCircleCI:
+		return w.writeCircleCIURL(ctx)
 	case types.ContentTypeURL:
 		return w.writeGenericURL(ctx)
 	default:
@@ -225,6 +229,19 @@ func (w *URLWriter) writeGeminiURL(ctx *types.ParseContext) (string, error) {
 		cleanURL = ctx.OriginalInput
 	}
 	return fmt.Sprintf("[🤖 Gemini Chat](%s)", cleanURL), nil
+}
+
+func (w *URLWriter) writeCircleCIURL(ctx *types.ParseContext) (string, error) {
+	org, _ := ctx.Metadata["org"].(string)
+	repo, _ := ctx.Metadata["repo"].(string)
+	pipelineNumber, _ := ctx.Metadata["pipeline_number"].(string)
+
+	if org == "" || repo == "" || pipelineNumber == "" {
+		return w.writeGenericURL(ctx)
+	}
+
+	linkText := fmt.Sprintf("🏗️ CircleCI %s/%s#%s", org, repo, pipelineNumber)
+	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
 }
 
 func (w *URLWriter) writeCodeCommitURL(ctx *types.ParseContext) (string, error) {
