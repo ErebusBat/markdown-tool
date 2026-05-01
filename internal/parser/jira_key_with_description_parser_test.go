@@ -28,6 +28,24 @@ Additional details here`,
 			expected: true,
 		},
 		{
+			name: "Valid JIRA key with unread count before description",
+			input: `HQ-14094
+
+1
+
+Multiple Daily Digest emails`,
+			expected: true,
+		},
+		{
+			name: "Valid JIRA key with comma unread count before description",
+			input: `HQ-14094
+
+1,234
+
+Multiple Daily Digest emails`,
+			expected: true,
+		},
+		{
 			name: "Valid JIRA key with description and extra whitespace",
 			input: `  PLAT-789  
 
@@ -75,7 +93,7 @@ description`,
 
 	cfg := &types.Config{
 		JIRA: types.JIRAConfig{
-			Projects: []string{"PLAT", "SPEED"},
+			Projects: []string{"PLAT", "SPEED", "HQ"},
 		},
 	}
 	parser := NewJIRAKeyWithDescriptionParser(cfg)
@@ -93,7 +111,7 @@ description`,
 func TestJIRAKeyWithDescriptionParser_Parse(t *testing.T) {
 	cfg := &types.Config{
 		JIRA: types.JIRAConfig{
-			Projects: []string{"PLAT", "SPEED"},
+			Projects: []string{"PLAT", "SPEED", "HQ"},
 		},
 	}
 	parser := NewJIRAKeyWithDescriptionParser(cfg)
@@ -147,6 +165,50 @@ Additional details about the bug`,
 			expectedKey:         "PLAT-999",
 			expectedProject:     "PLAT",
 			expectedDescription: "Description with spaces Second line",
+		},
+		{
+			name: "Valid key with unread count before description",
+			input: `HQ-14094
+
+1
+
+Multiple Daily Digest emails`,
+			expectSuccess:       true,
+			expectedKey:         "HQ-14094",
+			expectedProject:     "HQ",
+			expectedDescription: "Multiple Daily Digest emails",
+		},
+		{
+			name: "Valid key with comma unread count before description",
+			input: `HQ-14094
+
+1,234
+
+Multiple Daily Digest emails`,
+			expectSuccess:       true,
+			expectedKey:         "HQ-14094",
+			expectedProject:     "HQ",
+			expectedDescription: "Multiple Daily Digest emails",
+		},
+		{
+			name: "Single line numeric description is kept",
+			input: `HQ-42
+
+1`,
+			expectSuccess:       true,
+			expectedKey:         "HQ-42",
+			expectedProject:     "HQ",
+			expectedDescription: "1",
+		},
+		{
+			name: "Single line comma numeric description is kept",
+			input: `HQ-42
+
+1,234`,
+			expectSuccess:       true,
+			expectedKey:         "HQ-42",
+			expectedProject:     "HQ",
+			expectedDescription: "1,234",
 		},
 		{
 			name: "Unconfigured project",

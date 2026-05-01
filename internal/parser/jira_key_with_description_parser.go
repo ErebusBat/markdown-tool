@@ -7,6 +7,29 @@ import (
 	"github.com/erebusbat/markdown-tool/pkg/types"
 )
 
+func isNumericOnly(s string) bool {
+	if s == "" {
+		return false
+	}
+
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+
+	return true
+}
+
+func isNumericCountOnly(s string) bool {
+	if isNumericOnly(s) {
+		return true
+	}
+
+	commaNumberRegex := regexp.MustCompile(`^\d{1,3}(,\d{3})+$`)
+	return commaNumberRegex.MatchString(s)
+}
+
 type JIRAKeyWithDescriptionParser struct {
 	config *types.Config
 }
@@ -78,9 +101,39 @@ func (p *JIRAKeyWithDescriptionParser) Parse(input string) (*types.ParseContext,
 		return nil, nil // Don't handle unconfigured projects
 	}
 
-	// Extract description from lines 3 onwards
-	descriptionLines := make([]string, 0)
+	// Extract description from lines 3 onwards.
+	// Jira's copy/paste format can include an unread count line (e.g. "1")
+	// before the actual title; skip it when there is a following non-empty line.
+	firstNonEmptyIndex := -1
 	for i := 2; i < len(lines); i++ {
+		if strings.TrimSpace(lines[i]) != "" {
+			firstNonEmptyIndex = i
+			break
+		}
+	}
+
+	if firstNonEmptyIndex == -1 {
+		return nil, nil
+	}
+
+	descriptionStart := firstNonEmptyIndex
+	firstNonEmptyLine := strings.TrimSpace(lines[firstNonEmptyIndex])
+	if isNumericCountOnly(firstNonEmptyLine) {
+		hasFollowingNonEmpty := false
+		for i := firstNonEmptyIndex + 1; i < len(lines); i++ {
+			if strings.TrimSpace(lines[i]) != "" {
+				hasFollowingNonEmpty = true
+				break
+			}
+		}
+
+		if hasFollowingNonEmpty {
+			descriptionStart = firstNonEmptyIndex + 1
+		}
+	}
+
+	descriptionLines := make([]string, 0)
+	for i := descriptionStart; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
 		if line != "" {
 			descriptionLines = append(descriptionLines, line)
