@@ -113,6 +113,7 @@ func TestCodexParser_Parse(t *testing.T) {
 
 			if ctx == nil {
 				t.Fatalf("Parse(%q) = nil, want non-nil", tt.input)
+				return
 			}
 
 			if ctx.DetectedType != types.ContentTypeCodexThread {

@@ -109,7 +109,7 @@ func (p *GitHubLongParser) Parse(input string) (*types.ParseContext, error) {
 
 	// Second pass: find org and repo names
 	// In GitHub UI copies, the first line is typically the org, second line is the repo
-	var foundOrg, foundRepo bool
+	var foundOrg bool
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -128,9 +128,8 @@ func (p *GitHubLongParser) Parse(input string) (*types.ParseContext, error) {
 		}
 
 		// Second valid name (that's different from org) should be the repo
-		if foundOrg && !foundRepo && isValidRepoName(line) && line != org {
+		if foundOrg && isValidRepoName(line) && line != org {
 			repo = line
-			foundRepo = true
 			break
 		}
 	}

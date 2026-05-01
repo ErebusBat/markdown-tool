@@ -182,10 +182,6 @@ func (p *URLParser) parseCircleCIURL(u *url.URL, ctx *types.ParseContext) {
 		ctx.Metadata["workflow_id"] = workflowMatches[1]
 	}
 
-	// Ensure pipeline_number is stored as string for consistency
-	if _, ok := ctx.Metadata["pipeline_number"]; !ok {
-		return
-	}
 }
 
 func (p *URLParser) parseGeminiURL(u *url.URL, ctx *types.ParseContext) {
@@ -344,7 +340,9 @@ func (p *URLParser) fetchYouTubeTitleFromOEmbed(targetURL string) string {
 	if err != nil {
 		return ""
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return ""

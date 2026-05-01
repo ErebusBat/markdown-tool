@@ -101,6 +101,7 @@ Pull requests
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 
 			if ctx.DetectedType != tt.expectedType {
@@ -222,6 +223,7 @@ func TestCodeCommitParser_Parse(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 
 			if ctx.DetectedType != tt.expectedType {

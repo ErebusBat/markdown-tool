@@ -441,6 +441,7 @@ Lettercarrier6 My long Descr#285`,
 			if tt.expectSuccess {
 				if ctx == nil {
 					t.Fatal("Expected successful parse but got nil context")
+					return
 				}
 
 				if ctx.DetectedType != types.ContentTypeGitHubLong {

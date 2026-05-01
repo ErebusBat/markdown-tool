@@ -294,6 +294,7 @@ func TestPhoneParser_Parse(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatalf("Parse(%q) returned nil context", tt.input)
+				return
 			}
 
 			if ctx.DetectedType != tt.expectedType {
@@ -360,6 +361,7 @@ func TestPhoneParser_ConfidenceScoring(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatalf("Parse(%q) returned nil context", tt.input)
+				return
 			}
 
 			if ctx.Confidence != tt.expectedConfidence {

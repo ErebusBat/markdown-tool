@@ -120,6 +120,7 @@ func TestOpenCodeSessionParser_Parse(t *testing.T) {
 
 			if ctx == nil {
 				t.Fatalf("Parse(%q) = nil, want non-nil", tt.input)
+				return
 			}
 
 			if ctx.DetectedType != tt.expectedType {

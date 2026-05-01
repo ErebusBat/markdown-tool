@@ -250,6 +250,7 @@ some description`,
 			if tt.expectSuccess {
 				if ctx == nil {
 					t.Fatal("Expected successful parse but got nil context")
+					return
 				}
 
 				if ctx.DetectedType != types.ContentTypeJIRAKeyWithDescription {

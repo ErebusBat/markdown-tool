@@ -14,8 +14,14 @@ func TestLoad_DefaultConfig(t *testing.T) {
 
 	// Mock home directory
 	originalHome := os.Getenv("HOME")
-	defer os.Setenv("HOME", originalHome)
-	os.Setenv("HOME", tempDir)
+	t.Cleanup(func() {
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Errorf("failed to restore HOME: %v", err)
+		}
+	})
+	if err := os.Setenv("HOME", tempDir); err != nil {
+		t.Fatalf("failed to set HOME: %v", err)
+	}
 
 	// Load config (should create default)
 	cfg, err := Load("")

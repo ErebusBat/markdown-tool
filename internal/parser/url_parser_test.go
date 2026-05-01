@@ -113,6 +113,7 @@ func TestURLParser_Parse_GitHub(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 
 			if ctx.DetectedType != tt.expectedType {
@@ -187,6 +188,7 @@ func TestURLParser_Parse_JIRA(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 
 			if ctx.DetectedType != tt.expectedType {
@@ -273,6 +275,7 @@ func TestURLParser_Parse_Jenkins(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 
 			if ctx.DetectedType != tt.expectedType {
@@ -333,6 +336,7 @@ func TestURLParser_Parse_CodeCommit(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 
 			if ctx.DetectedType != tt.expectedType {
@@ -364,6 +368,7 @@ func TestURLParser_Parse_Notion(t *testing.T) {
 	}
 	if ctx == nil {
 		t.Fatal("Parse() returned nil context")
+		return
 	}
 
 	if ctx.DetectedType != types.ContentTypeNotionURL {
@@ -422,6 +427,7 @@ func TestURLParser_Parse_YouTube(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 
 			if ctx.DetectedType != types.ContentTypeYouTubeURL {
@@ -463,6 +469,7 @@ func TestURLParser_Parse_Generic(t *testing.T) {
 	}
 	if ctx == nil {
 		t.Fatal("Parse() returned nil context")
+		return
 	}
 
 	if ctx.DetectedType != types.ContentTypeURL {
@@ -516,6 +523,7 @@ func TestURLParser_Parse_ChatGPT(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 			if ctx.DetectedType != tt.expectedType {
 				t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, tt.expectedType)
@@ -579,6 +587,7 @@ func TestURLParser_Parse_CircleCI(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 			if ctx.DetectedType != tt.expectedType {
 				t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, tt.expectedType)
@@ -663,6 +672,7 @@ func TestURLParser_Parse_Gemini(t *testing.T) {
 			}
 			if ctx == nil {
 				t.Fatal("Parse() returned nil context")
+				return
 			}
 			if ctx.DetectedType != tt.expectedType {
 				t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, tt.expectedType)
