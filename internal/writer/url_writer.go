@@ -208,8 +208,13 @@ func (w *URLWriter) writeYouTubeURL(ctx *types.ParseContext) (string, error) {
 		return w.writeGenericURL(ctx)
 	}
 
-	// Format: [📺 TITLE](URL)
-	linkText := fmt.Sprintf("📺 %s", title)
+	youtubeType, _ := ctx.Metadata["youtube_type"].(string)
+	icon := "📺"
+	if youtubeType == "playlist" {
+		icon = "🎥🗃️"
+	}
+
+	linkText := fmt.Sprintf("%s %s", icon, title)
 	return fmt.Sprintf("[%s](%s)", linkText, ctx.OriginalInput), nil
 }
 

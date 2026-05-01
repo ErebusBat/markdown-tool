@@ -342,24 +342,50 @@ func TestURLWriter_WriteYouTubeURL(t *testing.T) {
 	cfg := &types.Config{}
 	writer := NewURLWriter(cfg)
 
-	ctx := &types.ParseContext{
-		OriginalInput: "https://www.youtube.com/watch?v=fkT41ooKBuY",
-		DetectedType:  types.ContentTypeYouTubeURL,
-		Metadata: map[string]interface{}{
-			"video_id": "fkT41ooKBuY",
-			"title":    "Stop overpaying for OpenAI: Multi-model routing guide",
+	tests := []struct {
+		name           string
+		ctx            *types.ParseContext
+		expectedOutput string
+	}{
+		{
+			name: "YouTube video",
+			ctx: &types.ParseContext{
+				OriginalInput: "https://www.youtube.com/watch?v=fkT41ooKBuY",
+				DetectedType:  types.ContentTypeYouTubeURL,
+				Metadata: map[string]interface{}{
+					"youtube_type": "video",
+					"video_id":     "fkT41ooKBuY",
+					"title":        "Stop overpaying for OpenAI: Multi-model routing guide",
+				},
+			},
+			expectedOutput: "[📺 Stop overpaying for OpenAI: Multi-model routing guide](https://www.youtube.com/watch?v=fkT41ooKBuY)",
+		},
+		{
+			name: "YouTube playlist",
+			ctx: &types.ParseContext{
+				OriginalInput: "https://www.youtube.com/playlist?list=PLCC34OHNcOtpcgR9LEYSdi9r7XIbpkpK1",
+				DetectedType:  types.ContentTypeYouTubeURL,
+				Metadata: map[string]interface{}{
+					"youtube_type": "playlist",
+					"playlist_id":  "PLCC34OHNcOtpcgR9LEYSdi9r7XIbpkpK1",
+					"title":        "Deep Learning With PyTorch",
+				},
+			},
+			expectedOutput: "[🎥🗃️ Deep Learning With PyTorch](https://www.youtube.com/playlist?list=PLCC34OHNcOtpcgR9LEYSdi9r7XIbpkpK1)",
 		},
 	}
 
-	expectedOutput := "[📺 Stop overpaying for OpenAI: Multi-model routing guide](https://www.youtube.com/watch?v=fkT41ooKBuY)"
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			output, err := writer.Write(tt.ctx)
+			if err != nil {
+				t.Fatalf("Write() error = %v", err)
+			}
 
-	output, err := writer.Write(ctx)
-	if err != nil {
-		t.Fatalf("Write() error = %v", err)
-	}
-
-	if output != expectedOutput {
-		t.Errorf("Write() = %v, want %v", output, expectedOutput)
+			if output != tt.expectedOutput {
+				t.Errorf("Write() = %v, want %v", output, tt.expectedOutput)
+			}
+		})
 	}
 }
 
@@ -744,8 +770,8 @@ func TestURLWriter_WriteCircleCIURL(t *testing.T) {
 			name:          "CircleCI pipeline URL",
 			originalInput: "https://app.circleci.com/pipelines/github/upserve/swipely/96/workflows/17abd9c6-1190-49e9-a05f-4bf992a9d611",
 			metadata: map[string]interface{}{
-				"org":            "upserve",
-				"repo":           "swipely",
+				"org":             "upserve",
+				"repo":            "swipely",
 				"pipeline_number": "96",
 			},
 			expectedOutput: "[🏗️ CircleCI upserve/swipely#96](https://app.circleci.com/pipelines/github/upserve/swipely/96/workflows/17abd9c6-1190-49e9-a05f-4bf992a9d611)",
@@ -754,8 +780,8 @@ func TestURLWriter_WriteCircleCIURL(t *testing.T) {
 			name:          "CircleCI different org and repo",
 			originalInput: "https://app.circleci.com/pipelines/github/CompanyCam/Company-Cam-API/15217/workflows/abc123de-4567-89ab-cdef-0123456789ab",
 			metadata: map[string]interface{}{
-				"org":            "CompanyCam",
-				"repo":           "Company-Cam-API",
+				"org":             "CompanyCam",
+				"repo":            "Company-Cam-API",
 				"pipeline_number": "15217",
 			},
 			expectedOutput: "[🏗️ CircleCI CompanyCam/Company-Cam-API#15217](https://app.circleci.com/pipelines/github/CompanyCam/Company-Cam-API/15217/workflows/abc123de-4567-89ab-cdef-0123456789ab)",
@@ -800,13 +826,13 @@ func TestURLWriter_WriteChatGPTURL(t *testing.T) {
 		expectedOutput string
 	}{
 		{
-			name:          "ChatGPT chat URL",
-			originalInput: "https://chatgpt.com/c/69efd1c6-a230-83e8-8778-5dc7754dcdd3",
+			name:           "ChatGPT chat URL",
+			originalInput:  "https://chatgpt.com/c/69efd1c6-a230-83e8-8778-5dc7754dcdd3",
 			expectedOutput: "[🤖 ChatGPT](https://chatgpt.com/c/69efd1c6-a230-83e8-8778-5dc7754dcdd3)",
 		},
 		{
-			name:          "ChatGPT chat URL with different ID",
-			originalInput: "https://chatgpt.com/c/abc123de-4567-89ab-cdef-0123456789ab",
+			name:           "ChatGPT chat URL with different ID",
+			originalInput:  "https://chatgpt.com/c/abc123de-4567-89ab-cdef-0123456789ab",
 			expectedOutput: "[🤖 ChatGPT](https://chatgpt.com/c/abc123de-4567-89ab-cdef-0123456789ab)",
 		},
 	}

@@ -376,6 +376,81 @@ func TestURLParser_Parse_Notion(t *testing.T) {
 	}
 }
 
+func TestURLParser_Parse_YouTube(t *testing.T) {
+	cfg := &types.Config{}
+	parser := NewURLParser(cfg)
+	parser.youtubeTitleFetcher = func(targetURL string) string {
+		switch targetURL {
+		case "https://www.youtube.com/watch?v=fkT41ooKBuY":
+			return "Stop overpaying for OpenAI: Multi-model routing guide"
+		case "https://www.youtube.com/playlist?list=PLCC34OHNcOtpcgR9LEYSdi9r7XIbpkpK1":
+			return "Deep Learning With PyTorch"
+		default:
+			return ""
+		}
+	}
+
+	tests := []struct {
+		name                string
+		input               string
+		expectedYouTubeType string
+		expectedVideoID     string
+		expectedPlaylistID  string
+		expectedTitle       string
+	}{
+		{
+			name:                "YouTube watch URL",
+			input:               "https://www.youtube.com/watch?v=fkT41ooKBuY",
+			expectedYouTubeType: "video",
+			expectedVideoID:     "fkT41ooKBuY",
+			expectedTitle:       "Stop overpaying for OpenAI: Multi-model routing guide",
+		},
+		{
+			name:                "YouTube playlist URL",
+			input:               "https://www.youtube.com/playlist?list=PLCC34OHNcOtpcgR9LEYSdi9r7XIbpkpK1",
+			expectedYouTubeType: "playlist",
+			expectedPlaylistID:  "PLCC34OHNcOtpcgR9LEYSdi9r7XIbpkpK1",
+			expectedTitle:       "Deep Learning With PyTorch",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, err := parser.Parse(tt.input)
+			if err != nil {
+				t.Fatalf("Parse() error = %v", err)
+			}
+			if ctx == nil {
+				t.Fatal("Parse() returned nil context")
+			}
+
+			if ctx.DetectedType != types.ContentTypeYouTubeURL {
+				t.Errorf("DetectedType = %v, want %v", ctx.DetectedType, types.ContentTypeYouTubeURL)
+			}
+
+			if youtubeType := ctx.Metadata["youtube_type"]; youtubeType != tt.expectedYouTubeType {
+				t.Errorf("Metadata[youtube_type] = %v, want %v", youtubeType, tt.expectedYouTubeType)
+			}
+
+			if tt.expectedVideoID != "" {
+				if videoID := ctx.Metadata["video_id"]; videoID != tt.expectedVideoID {
+					t.Errorf("Metadata[video_id] = %v, want %v", videoID, tt.expectedVideoID)
+				}
+			}
+
+			if tt.expectedPlaylistID != "" {
+				if playlistID := ctx.Metadata["playlist_id"]; playlistID != tt.expectedPlaylistID {
+					t.Errorf("Metadata[playlist_id] = %v, want %v", playlistID, tt.expectedPlaylistID)
+				}
+			}
+
+			if title := ctx.Metadata["title"]; title != tt.expectedTitle {
+				t.Errorf("Metadata[title] = %v, want %v", title, tt.expectedTitle)
+			}
+		})
+	}
+}
+
 func TestURLParser_Parse_Generic(t *testing.T) {
 	cfg := &types.Config{}
 	parser := NewURLParser(cfg)
@@ -462,15 +537,15 @@ func TestURLParser_Parse_CircleCI(t *testing.T) {
 	p := NewURLParser(cfg)
 
 	tests := []struct {
-		name              string
-		input             string
-		expectedType      types.ContentType
-		expectedConf      int
-		expectedVCS       string
-		expectedOrg       string
-		expectedRepo      string
-		expectedPipeline  string
-		expectedWorkflow  string
+		name             string
+		input            string
+		expectedType     types.ContentType
+		expectedConf     int
+		expectedVCS      string
+		expectedOrg      string
+		expectedRepo     string
+		expectedPipeline string
+		expectedWorkflow string
 	}{
 		{
 			name:             "CircleCI pipeline URL",

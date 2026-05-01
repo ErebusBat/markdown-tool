@@ -13,11 +13,14 @@ import (
 )
 
 type URLParser struct {
-	config *types.Config
+	config              *types.Config
+	youtubeTitleFetcher func(string) string
 }
 
 func NewURLParser(cfg *types.Config) *URLParser {
-	return &URLParser{config: cfg}
+	parser := &URLParser{config: cfg}
+	parser.youtubeTitleFetcher = parser.fetchYouTubeTitleFromOEmbed
+	return parser
 }
 
 func (p *URLParser) CanHandle(input string) bool {
@@ -273,6 +276,23 @@ func (p *URLParser) parseJenkinsURL(u *url.URL, ctx *types.ParseContext) {
 }
 
 func (p *URLParser) parseYouTubeURL(u *url.URL, ctx *types.ParseContext) {
+	if u.Path == "/playlist" {
+		playlistID := u.Query().Get("list")
+		if playlistID == "" {
+			return
+		}
+
+		ctx.Metadata["youtube_type"] = "playlist"
+		ctx.Metadata["playlist_id"] = playlistID
+
+		playlistURL := fmt.Sprintf("https://www.youtube.com/playlist?list=%s", url.QueryEscape(playlistID))
+		title := p.fetchYouTubeTitleByURL(playlistURL)
+		if title != "" {
+			ctx.Metadata["title"] = title
+		}
+		return
+	}
+
 	// Extract video ID from YouTube URLs
 	// Formats:
 	// - https://www.youtube.com/watch?v=VIDEO_ID
@@ -293,6 +313,7 @@ func (p *URLParser) parseYouTubeURL(u *url.URL, ctx *types.ParseContext) {
 		return
 	}
 
+	ctx.Metadata["youtube_type"] = "video"
 	ctx.Metadata["video_id"] = videoID
 
 	// Fetch video title using YouTube oEmbed API (no API key required)
@@ -303,8 +324,21 @@ func (p *URLParser) parseYouTubeURL(u *url.URL, ctx *types.ParseContext) {
 }
 
 func (p *URLParser) fetchYouTubeTitle(videoID string) string {
-	// Use YouTube oEmbed API to get video title
-	oembedURL := fmt.Sprintf("https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=%s&format=json", videoID)
+	videoURL := fmt.Sprintf("https://www.youtube.com/watch?v=%s", videoID)
+	return p.fetchYouTubeTitleByURL(videoURL)
+}
+
+func (p *URLParser) fetchYouTubeTitleByURL(targetURL string) string {
+	if p.youtubeTitleFetcher == nil {
+		return ""
+	}
+
+	return p.youtubeTitleFetcher(targetURL)
+}
+
+func (p *URLParser) fetchYouTubeTitleFromOEmbed(targetURL string) string {
+	// Use YouTube oEmbed API to get video or playlist title
+	oembedURL := fmt.Sprintf("https://www.youtube.com/oembed?url=%s&format=json", url.QueryEscape(targetURL))
 
 	resp, err := http.Get(oembedURL)
 	if err != nil {
